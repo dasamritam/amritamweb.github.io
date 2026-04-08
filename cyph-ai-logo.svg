@@ -1,0 +1,72 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 600" width="400" height="600">
+  <defs>
+    <!-- Bronze gradient for main strokes -->
+    <linearGradient id="bronze" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#E8CD7E"/>
+      <stop offset="40%" stop-color="#C4A96A"/>
+      <stop offset="100%" stop-color="#9E8650"/>
+    </linearGradient>
+
+    <!-- Lighter bronze for secondary elements -->
+    <linearGradient id="bronzeLight" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#E8CD7E" stop-opacity="0.6"/>
+      <stop offset="100%" stop-color="#C4A96A" stop-opacity="0.4"/>
+    </linearGradient>
+
+    <!-- Subtle glow for the ellipse -->
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="2" result="blur"/>
+      <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+    </filter>
+  </defs>
+
+  <!-- =============================================
+       THE UNIFIED SYMBOL: Ψ + Φ + Ι
+       
+       Structure:
+       - Vertical line (IOTA) runs full height
+       - Horizontal ellipse (PHI body) at center
+       - Upper Psi prongs curve outward above ellipse
+       - Lower inverted Psi prongs mirror below
+       ============================================= -->
+
+  <!-- IOTA: The vertical spine — double line for distinction -->
+  <line x1="200" y1="68" x2="200" y2="532" 
+        stroke="url(#bronze)" stroke-width="5" stroke-linecap="round"/>
+  <!-- Iota: subtle inner highlight line -->
+  <line x1="200" y1="72" x2="200" y2="528" 
+        stroke="#E8CD7E" stroke-width="1.5" stroke-linecap="round" opacity="0.3"/>
+
+  <!-- PHI: The ellipse — slightly heavier stroke, with glow -->
+  <ellipse cx="200" cy="300" rx="110" ry="68" 
+           fill="none" stroke="url(#bronze)" stroke-width="5" filter="url(#glow)"/>
+  <!-- Phi: inner contour line for elegance -->
+  <ellipse cx="200" cy="300" rx="106" ry="64" 
+           fill="none" stroke="url(#bronzeLight)" stroke-width="1.2"/>
+
+  <!-- UPPER PSI: Two prongs curving outward from the stem above the ellipse -->
+  <!-- Left prong -->
+  <path d="M 200,195  C 190,175  130,140  95,175" 
+        fill="none" stroke="url(#bronze)" stroke-width="4.5" stroke-linecap="round"/>
+  <!-- Right prong -->
+  <path d="M 200,195  C 210,175  270,140  305,175" 
+        fill="none" stroke="url(#bronze)" stroke-width="4.5" stroke-linecap="round"/>
+
+  <!-- LOWER PSI (inverted): Mirror prongs below the ellipse -->
+  <!-- Left prong -->
+  <path d="M 200,405  C 190,425  130,460  95,425" 
+        fill="none" stroke="url(#bronze)" stroke-width="4.5" stroke-linecap="round"/>
+  <!-- Right prong -->
+  <path d="M 200,405  C 210,425  270,460  305,425" 
+        fill="none" stroke="url(#bronze)" stroke-width="4.5" stroke-linecap="round"/>
+
+  <!-- Terminal nodes — circuit aesthetic at prong ends -->
+  <circle cx="95" cy="175" r="4" fill="url(#bronze)"/>
+  <circle cx="305" cy="175" r="4" fill="url(#bronze)"/>
+  <circle cx="95" cy="425" r="4" fill="url(#bronze)"/>
+  <circle cx="305" cy="425" r="4" fill="url(#bronze)"/>
+
+  <!-- Iota terminals — small marks at top and bottom of the stem -->
+  <circle cx="200" cy="68" r="4.5" fill="url(#bronze)"/>
+  <circle cx="200" cy="532" r="4.5" fill="url(#bronze)"/>
+</svg>

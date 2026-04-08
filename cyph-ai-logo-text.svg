@@ -1,0 +1,61 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 720" width="400" height="720">
+  <defs>
+    <linearGradient id="bronze" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#E8CD7E"/>
+      <stop offset="40%" stop-color="#C4A96A"/>
+      <stop offset="100%" stop-color="#9E8650"/>
+    </linearGradient>
+    <linearGradient id="bronzeLight" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#E8CD7E" stop-opacity="0.6"/>
+      <stop offset="100%" stop-color="#C4A96A" stop-opacity="0.4"/>
+    </linearGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="2" result="blur"/>
+      <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+    </filter>
+  </defs>
+
+  <!-- IOTA: vertical spine -->
+  <line x1="200" y1="68" x2="200" y2="532" 
+        stroke="url(#bronze)" stroke-width="5" stroke-linecap="round"/>
+  <line x1="200" y1="72" x2="200" y2="528" 
+        stroke="#E8CD7E" stroke-width="1.5" stroke-linecap="round" opacity="0.3"/>
+
+  <!-- PHI: ellipse -->
+  <ellipse cx="200" cy="300" rx="110" ry="68" 
+           fill="none" stroke="url(#bronze)" stroke-width="5" filter="url(#glow)"/>
+  <ellipse cx="200" cy="300" rx="106" ry="64" 
+           fill="none" stroke="url(#bronzeLight)" stroke-width="1.2"/>
+
+  <!-- UPPER PSI prongs -->
+  <path d="M 200,195  C 190,175  130,140  95,175" 
+        fill="none" stroke="url(#bronze)" stroke-width="4.5" stroke-linecap="round"/>
+  <path d="M 200,195  C 210,175  270,140  305,175" 
+        fill="none" stroke="url(#bronze)" stroke-width="4.5" stroke-linecap="round"/>
+
+  <!-- LOWER PSI prongs (inverted) -->
+  <path d="M 200,405  C 190,425  130,460  95,425" 
+        fill="none" stroke="url(#bronze)" stroke-width="4.5" stroke-linecap="round"/>
+  <path d="M 200,405  C 210,425  270,460  305,425" 
+        fill="none" stroke="url(#bronze)" stroke-width="4.5" stroke-linecap="round"/>
+
+  <!-- Terminal nodes -->
+  <circle cx="95" cy="175" r="4" fill="url(#bronze)"/>
+  <circle cx="305" cy="175" r="4" fill="url(#bronze)"/>
+  <circle cx="95" cy="425" r="4" fill="url(#bronze)"/>
+  <circle cx="305" cy="425" r="4" fill="url(#bronze)"/>
+  <circle cx="200" cy="68" r="4.5" fill="url(#bronze)"/>
+  <circle cx="200" cy="532" r="4.5" fill="url(#bronze)"/>
+
+  <!-- Text: Cy·Ph·Ai -->
+  <text x="200" y="630" 
+        font-family="'Space Grotesk', -apple-system, sans-serif" 
+        font-size="52" font-weight="700" text-anchor="middle" 
+        fill="url(#bronze)" letter-spacing="3">Cy·Ph·Ai</text>
+
+  <!-- Subtitle -->
+  <text x="200" y="670" 
+        font-family="'Space Grotesk', -apple-system, sans-serif" 
+        font-size="13" font-weight="400" text-anchor="middle" 
+        fill="#C4A96A" opacity="0.5" letter-spacing="4">CYBER · PHYSICAL · AI</text>
+</svg>
