@@ -140,6 +140,76 @@
 
     .nav-icon svg { width: 14px; height: 14px; fill: currentColor; flex-shrink: 0; }
 
+    /* Mobile hamburger menu */
+    .hamburger {
+      display: none;
+      flex-direction: column;
+      gap: 5px;
+      cursor: pointer;
+      background: none;
+      border: none;
+      padding: 0.5rem;
+    }
+    .hamburger span {
+      width: 20px;
+      height: 2px;
+      background: var(--text-hi);
+      transition: all 0.3s ease;
+      display: block;
+    }
+
+    .hamburger.active span:nth-child(1) {
+      transform: rotate(45deg) translate(8px, 8px);
+    }
+    .hamburger.active span:nth-child(2) {
+      opacity: 0;
+    }
+    .hamburger.active span:nth-child(3) {
+      transform: rotate(-45deg) translate(7px, -7px);
+    }
+
+    .mobile-menu {
+      display: none;
+      position: fixed;
+      top: 60px;
+      left: 0;
+      right: 0;
+      background: rgba(10,11,16,0.98);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid rgba(208,138,79,0.12);
+      z-index: 190;
+      flex-direction: column;
+      padding: 1.5rem 2rem;
+      gap: 1rem;
+      max-height: calc(100vh - 60px);
+      overflow-y: auto;
+    }
+    .mobile-menu.active {
+      display: flex;
+    }
+    .mobile-menu a, .mobile-menu li a {
+      font-family: var(--mono);
+      font-size: 0.62rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--text-lo);
+      text-decoration: none;
+      transition: color 0.2s;
+      padding: 0.5rem 0;
+      display: block;
+    }
+    .mobile-menu a:hover, .mobile-menu li a:hover {
+      color: var(--copper);
+    }
+
+    @media (max-width: 768px) {
+      .hamburger { display: flex; }
+      .nav-left { gap: 1rem; }
+      .nav-links { display: none; }
+      .nav-right { display: none; }
+      nav { padding: 1.4rem 2rem; }
+    }
+
     /* ================================================================
        HERO CANVAS
     ================================================================ */
@@ -1015,7 +1085,24 @@
       am.das@tue.nl
     </a>
   </div>
+  <button class="hamburger" id="hamburger-btn" aria-label="Toggle navigation menu">
+    <span></span>
+    <span></span>
+    <span></span>
+  </button>
 </nav>
+
+<div class="mobile-menu" id="mobile-menu">
+  <a href="#about">About</a>
+  <a href="#manifesto">Manifesto</a>
+  <a href="#pde-control">Research</a>
+  <a href="#partnerships">Partnerships</a>
+  <a href="#awards">Recognition</a>
+  <a href="#recent">Publications &amp; News</a>
+  <hr style="border: none; border-top: 1px solid rgba(208,138,79,0.2); margin: 0.5rem 0;">
+  <a href="https://scholar.google.com/citations?user=dZ1NkwoAAAAJ&hl=en" target="_blank">Google Scholar</a>
+  <a href="mailto:am.das@tue.nl">Email: am.das@tue.nl</a>
+</div>
 
 <!-- ================================================================
      HERO CANVAS
@@ -1795,6 +1882,7 @@
   });
 </script>
 
+<script src="mobile-menu.js"></script>
 
 </body>
 </html>
