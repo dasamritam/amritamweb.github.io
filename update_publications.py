@@ -7,7 +7,7 @@ Prompts user for h-index, new publications, and news items
 import re
 import os
 
-WEBSITE_PATH = "/sessions/nice-jolly-goodall/mnt/egavves.github.io/index.html"
+WEBSITE_PATH = "/Users/adas/GitHub/amritamweb.github.io/index.html"
 
 def main():
     print("\n" + "=" * 70)
