@@ -14,21 +14,27 @@ The **AD** logo is a modern, geometric symbol representing Amritam Das through c
 
 ## Files Included
 
-### 1. **cyph-ai-logo.svg** (Symbol Only)
-- Pure symbol without text
-- Scalable to any size
-- Best for: favicon, icon usage, app interfaces, badges
-- Viewbox: 512×512 (square format)
+### 1. **ad-logo.svg** (Full-size geometric AD)
+- Scalable vector version
+- Best for: large displays, printing, vector editing
+- Viewbox: 512×512
 
-### 2. **cyph-ai-logo-text.svg** (With Label)
-- Includes "Cy·Ph·Ai" text and subtitle
-- Professional presentation
-- Best for: branding, presentations, documents, headers
-- Viewbox: 512×570 (portrait format with text space)
+### 2. **favicon.svg** (Small geometric AD)
+- Optimized for browser tabs
+- Same design as ad-logo.svg
+- Viewbox: 64×64
 
-### 3. **favicon.svg** (Current Website Favicon)
-- Optimized small version for browser tabs
-- Same design as logo symbol
+### 3. **favicon-32.png** (32×32 AD logo)
+- Standard favicon size
+- Generated from SVG source
+
+### 4. **favicon-192.png** (192×192 AD logo)  
+- High-resolution favicon
+- For modern devices and PWA icons
+
+### 5. **apple-touch-icon.png** (180×180 AD logo)
+- iOS home screen icon
+- Optimized for Apple devices
 
 ## Usage Guidelines
 
