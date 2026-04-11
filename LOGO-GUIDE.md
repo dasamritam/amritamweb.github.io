@@ -39,33 +39,31 @@ The **AD** logo is a modern, geometric symbol representing Amritam Das through c
 ## Usage Guidelines
 
 ### Color
-- **Primary:** Bronze/Gold gradient (`#E6C371` to `#A68D58`)
+- **Primary:** Bronze/Gold (`#E6C371`)
 - **Background:** Dark (`#09090D` recommended)
-- **Accent:** Cyan glow for energy representation
+- **Accent:** Warm metallic highlight for premium contrast
 
 ### Sizes & Applications
 
 | Use Case | Size | Format | File |
 |----------|------|--------|------|
-| Favicon | 32×32px | SVG | favicon.svg |
-| App Icon | 64×64px | SVG | cyph-ai-logo.svg |
-| Social Media Avatar | 200×200px | SVG | cyph-ai-logo.svg |
-| Header Logo | 300×300px | SVG | cyph-ai-logo-text.svg |
-| Presentation Slide | 400×400px | SVG | cyph-ai-logo.svg |
-| Print (High Res) | 2000×2000px+ | SVG | cyph-ai-logo.svg |
-| Business Card | 400×300px | SVG | cyph-ai-logo-text.svg |
+| Browser favicon | 32×32px | PNG | favicon-32.png |
+| Browser favicon | 64×64px | SVG | favicon.svg |
+| High-res icon | 192×192px | PNG | favicon-192.png |
+| Apple touch icon | 180×180px | PNG | apple-touch-icon.png |
+| Source vector | 512×512px | SVG | ad-logo.svg |
 
 ### Integration Tips
 
 1. **Web Embedding**
    ```html
-   <img src="cyph-ai-logo.svg" alt="Cy·Ph·Ai Logo" class="logo">
+   <img src="ad-logo.svg" alt="AD Logo" class="logo">
    ```
 
 2. **CSS Background**
    ```css
    .header {
-     background-image: url('cyph-ai-logo.svg');
+     background-image: url('ad-logo.svg');
      background-size: contain;
      background-repeat: no-repeat;
    }
@@ -73,78 +71,49 @@ The **AD** logo is a modern, geometric symbol representing Amritam Das through c
 
 3. **Export to Other Formats**
    - SVG → PNG: Use browser "Save as" or any vector editor
-   - SVG → PDF: Use Inkscape or browser print-to-PDF
-   - SVG → AI: Use Adobe Illustrator (File > Open)
+   - SVG → PDF: Use browser print-to-PDF or Inkscape
+   - SVG → ICO: Use Pillow or any favicon generator
 
 ## Design Elements Explained
 
-### Chambers (Greek Letters)
-The three vertical chambers form the core structure:
-- Left: Psi's characteristic forked top
-- Center: Phi's iconic circle bisected by vertical line
-- Right: Iota's simple minimalist stem with serifs
+### Letterforms
+- **A** — Strong triangular form, pointing upward for growth
+- **D** — Rounded shape with a vertical backbone for stability and continuity
+- **Accent dot** — Adds balance and a subtle signature detail
 
-### Mechanical Details
-- **Robot arms:** Extend at angles representing action and control
-- **Circuit nodes:** Small circles at endpoints representing information nodes
-- **Energy flows:** Dashed lines showing connectivity between elements
-- **Outer hexagon:** Geometric frame suggesting structural stability
-
-### Color Gradient
-The bronze-to-gold gradient:
-- Suggests warmth and value (like gold)
-- Works on dark backgrounds (WCAG AA compliant)
-- Maintains elegance in grayscale (monochrome capable)
-
-## Variations
-
-### Monochrome (Black on Light Background)
-Simply change the gradient fill to `#333333` or `#000000`
-
-### Inverted (Light on Dark Background)
-Already optimized for this — adjust to `#F4F1EB` for your light accent color
-
-### Animated Version
-SVG allows for subtle animations:
-- Circle pulse in center Phi chamber
-- Energy line animation along robot arms
-- Gentle rotation of the whole symbol
+### Style
+- Minimal geometric construction
+- Bronze/gold stroke on deep dark background
+- Clean lines optimized for small and large sizes
 
 ## Recommended Contexts
 
-✅ **Perfect For:**
-- Academic papers and CV
-- Research institution headers
-- Product branding (AI/robotics)
-- Conference presentations
-- LinkedIn/Twitter profiles
-- Lab/research group identity
-- Tech company branding
+✅ **Best For:**
+- Website icons and favicons
+- App and mobile icons
+- Personal branding and profile images
+- Presentation headers and document identity
 
-❌ **Less Suitable For:**
-- Extremely small sizes (<32px) — use favicon.svg instead
-- Highly colorful backgrounds — maintain contrast
-- Comic sans environments (kidding... but keep typography professional)
+❌ **Avoid:**
+- Very low-contrast, busy backgrounds
+- Tiny usage below 16px without fallback
 
 ## Typography Pairing
 
 The logo pairs well with:
-- **Display:** Space Grotesk (geometric, modern)
-- **Body:** Inter (clean, readable)
-- **Mono:** DM Mono (technical, precise)
-
-These match your website's existing typography system!
+- **Space Grotesk** for display headings
+- **Inter** for body text
+- **DM Mono** for technical notes
 
 ## Technical Specifications
 
-- **Format:** SVG (Scalable Vector Graphics)
-- **License:** Your personal use (part of egavves.com branding)
-- **Transparency:** Yes (alpha channel supported)
-- **Color Space:** sRGB (web-optimized)
-- **Accessibility:** High contrast meets WCAG AA standards
+- **Format:** SVG
+- **Source:** `ad-logo.svg`
+- **Favicon files:** `favicon.svg`, `favicon-32.png`, `favicon-192.png`, `apple-touch-icon.png`, `favicon.ico`
+- **Color space:** sRGB
+- **Accessibility:** High contrast for dark UI
 
 ---
 
-**Created for:** Efstratios Gavves — Professor of Physical AI  
-**Concept:** Cyber-Physical AI (Ψ·Φ·Ι)  
-**Style:** Minimal, elegant, robot aesthetic with bronze accents
+**Brand:** Amritam Das — geometric AD identity
+**Style:** Modern, minimal, professional visual mark
