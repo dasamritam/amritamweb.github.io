@@ -1,14 +1,20 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+<svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+  <!-- Dark background -->
   <rect width="64" height="64" fill="#09090D"/>
-  <defs>
-    <linearGradient id="b" x1="50%" y1="0%" x2="50%" y2="100%">
-      <stop offset="0%"   stop-color="#E8CD7E"/>
-      <stop offset="50%"  stop-color="#C4A96A"/>
-      <stop offset="100%" stop-color="#9E8650"/>
-    </linearGradient>
-  </defs>
-  <!-- Phi: vertical stem -->
-  <line x1="32" y1="8"  x2="32" y2="56" stroke="url(#b)" stroke-width="3.5" stroke-linecap="round"/>
-  <!-- Phi: circle -->
-  <circle cx="32" cy="32" r="16" fill="none" stroke="url(#b)" stroke-width="3.5"/>
+  
+  <!-- Geometric "A" -->
+  <g>
+    <!-- Triangle -->
+    <polygon points="10,48 20,16 30,48" fill="none" stroke="#E6C371" stroke-width="2.5" stroke-linejoin="round"/>
+    <!-- Horizontal bar -->
+    <line x1="14" y1="34" x2="26" y2="34" stroke="#E6C371" stroke-width="2.5" stroke-linecap="round"/>
+  </g>
+  
+  <!-- Geometric "D" -->
+  <g>
+    <!-- Vertical line -->
+    <line x1="36" y1="16" x2="36" y2="48" stroke="#E6C371" stroke-width="2.5" stroke-linecap="round"/>
+    <!-- Rounded right side -->
+    <path d="M 36 16 Q 48 16 48 32 Q 48 48 36 48" fill="none" stroke="#E6C371" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
 </svg>

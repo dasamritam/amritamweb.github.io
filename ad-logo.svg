@@ -1,0 +1,23 @@
+<svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+  <!-- Dark background -->
+  <rect width="512" height="512" fill="#09090D"/>
+  
+  <!-- Geometric "A" - made with triangles -->
+  <g>
+    <!-- Left triangle -->
+    <polygon points="80,380 160,120 240,380" fill="none" stroke="#E6C371" stroke-width="24" stroke-linejoin="round"/>
+    <!-- Horizontal bar -->
+    <line x1="130" y1="270" x2="210" y2="270" stroke="#E6C371" stroke-width="24" stroke-linecap="round"/>
+  </g>
+  
+  <!-- Geometric "D" - made with circle and rectangles -->
+  <g>
+    <!-- Vertical line left -->
+    <line x1="280" y1="120" x2="280" y2="380" stroke="#E6C371" stroke-width="24" stroke-linecap="round"/>
+    <!-- Rounded right side using path -->
+    <path d="M 280 120 Q 380 120 380 250 Q 380 380 280 380" fill="none" stroke="#E6C371" stroke-width="24" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+  
+  <!-- Accent dot - represents connection/tech -->
+  <circle cx="256" cy="450" r="12" fill="#E6C371" opacity="0.6"/>
+</svg>

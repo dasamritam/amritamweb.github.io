@@ -1,17 +1,16 @@
-# Cy·Ph·Ai Logo Design Guide
+# AD Logo Design Guide
 
 ## Overview
 
-The **Cy·Ph·Ai** logo is an elegant, minimalist symbol representing Cyber-Physical AI through three interconnected Greek letters combined with robot aesthetic elements.
+The **AD** logo is a modern, geometric symbol representing Amritam Das through clean, interconnected letterforms with a contemporary design aesthetic.
 
 ### Design Philosophy
 
-- **Ψ (Psi)** — Left chamber: Consciousness, mind, cognitive processes
-- **Φ (Phi)** — Center chamber: Golden ratio, harmony, fundamental proportions  
-- **Ι (Iota)** — Right chamber: Minimal but significant, the smallest unit with impact
-- **Robot Arms** — Mechanical effectors extending outward for action and control
-- **Circuit Aesthetic** — Corner nodes and energy flow lines representing interconnected systems
-- **Bronze/Gold Color** — Warmth and sophistication in otherwise dark/technical aesthetic
+- **A** — Triangle-based geometric form, representing stability and upward direction
+- **D** — Rounded semicircle with vertical backbone, representing growth and connection
+- **Bronze/Gold Color** — Warmth and sophistication representing professionalism and approachability
+- **Minimalist Approach** — Clean lines and geometric shapes for modern, professional appearance
+- **Accent Detail** — Subtle dot element for visual balance and presence
 
 ## Files Included
 
