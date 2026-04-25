@@ -312,6 +312,259 @@ def make_pde_gif():
 
 
 # ─────────────────────────────────────────────────────────────────────────────
+# GIF 5 — Control block diagram + synchronized PDE surface (same frequency)
+# ─────────────────────────────────────────────────────────────────────────────
+def make_control_diagram_gif():
+    from mpl_toolkits.mplot3d import Axes3D          # noqa: F401
+    from matplotlib.colors import LinearSegmentedColormap as LSC
+    from matplotlib.patches import FancyBboxPatch, Circle
+
+    N_FRAMES    = 80     # same count as gif-pde-control.gif
+    OMEGA       = 8.0   # rad/s — shared by arrows and PDE surface
+
+    # ── Full PDE physics (mirrors gif-pde-control.gif) ────────────────────────
+    Ns  = 100
+    xs  = np.linspace(0, 1, Ns); ys = np.linspace(0, 1, Ns)
+    Xs, Ys = np.meshgrid(xs, ys)
+
+    c_s  = 1.0; dx_s = xs[1]-xs[0]
+    dt_s = 0.36 * dx_s / np.sqrt(2); r_s = (c_s*dt_s/dx_s)**2
+    gamma_s = 0.8
+
+    margin_s = 12
+    sponge_s = np.ones((Ns, Ns))
+    for k in range(margin_s):
+        f = 1.0 - 0.06*(margin_s-k)/margin_s
+        sponge_s[k,:]=np.minimum(sponge_s[k,:],f); sponge_s[-1-k,:]=np.minimum(sponge_s[-1-k,:],f)
+        sponge_s[:,k]=np.minimum(sponge_s[:,k],f); sponge_s[:,-1-k]=np.minimum(sponge_s[:,-1-k],f)
+
+    np.random.seed(7)
+    u_s = np.zeros((Ns, Ns))
+    for _ in range(28):
+        cx=np.random.uniform(0.06,0.94); cy=np.random.uniform(0.06,0.94)
+        amp=np.random.uniform(0.55,1.0)*np.random.choice([-1,1])
+        sig=np.random.uniform(0.003,0.006)
+        u_s += amp*np.exp(-((Xs-cx)**2+(Ys-cy)**2)/sig)
+    u_s = np.clip(u_s,-1.0,1.0); u_prev_s = u_s.copy()
+
+    sync_start_s = [(0.44,0.44),(0.56,0.44),(0.44,0.56),(0.56,0.56)]
+    sync_end_s   = [(0.30,0.30),(0.70,0.30),(0.30,0.70),(0.70,0.70)]
+
+    dist_s = np.sqrt((Xs-0.5)**2+(Ys-0.5)**2)
+    R_s, Rf_s = 0.49, 0.022; R_inner_s = R_s - Rf_s
+    circ_win_s = np.where(dist_s<=R_inner_s, 1.0,
+                 np.where(dist_s<=R_s,
+                          0.5*(1+np.cos(np.pi*(dist_s-R_inner_s)/Rf_s)), 0.0))
+    circ_mask_s = dist_s > R_s
+
+    cmap = LSC.from_list('site', [
+        (10/255,11/255,16/255),(45/255,28/255,10/255),
+        (208/255,138/255,79/255),(236/255,231/255,220/255)], N=256)
+
+    # ── Figure ─────────────────────────────────────────────────────────────────
+    fig = plt.figure(figsize=(W/DPI, H/DPI))
+    fig.patch.set_facecolor(BG)
+
+    # Left: block diagram (38 % of width — compact)
+    ax_d = fig.add_axes([0.01, 0.0, 0.38, 1.0])
+    ax_d.set_facecolor(BG); ax_d.set_xlim(0,1); ax_d.set_ylim(0,1)
+    ax_d.axis('off')
+
+    # Right: mini 3-D surface (62 % of width — larger)
+    ax_s = fig.add_axes([0.37, 0.04, 0.63, 0.92], projection='3d')
+    ax_s.set_facecolor(BG); ax_s.set_axis_off()
+    for axis in (ax_s.xaxis, ax_s.yaxis, ax_s.zaxis):
+        axis.pane.fill = False; axis.pane.set_visible(False)
+        axis.pane.set_edgecolor('none'); axis.line.set_linewidth(0)
+    ax_s.set_zlim(-1.1,1.1); ax_s.set_xlim(0.04,0.96); ax_s.set_ylim(0.04,0.96)
+    ax_s.view_init(elev=40, azim=45)
+
+    # ── Φ–P–K Generalized Plant (robust control LFT form) ────────────────────
+    # Block extents (ax_d data coords 0–1 × 0–1)
+    PX1,PY1,PX2,PY2 = 0.22, 0.36, 0.78, 0.64   # P
+    KX1,KY1,KX2,KY2 = 0.32, 0.05, 0.68, 0.18   # K
+    FX1,FY1,FX2,FY2 = 0.32, 0.82, 0.68, 0.95   # Φ
+
+    VX, QX = 0.36, 0.64   # P top ports  (v←Φ,  q→Φ)
+    UX, YX = 0.36, 0.64   # P bottom ports (u←K, y→K)
+    WY, ZY = 0.50, 0.50   # P left/right exogenous ports
+
+    def sline(xs, ys, ls='-', lw=0.8):
+        ax_d.plot(xs, ys, color=CU, lw=lw, linestyle=ls, zorder=1)
+    def sarrow(x, y, m):
+        ax_d.plot([x],[y], m, color=CU, ms=4, zorder=2)
+    def block(x1,y1,x2,y2, symbol):
+        ax_d.add_patch(FancyBboxPatch(
+            (x1,y1), x2-x1, y2-y1,
+            boxstyle='round,pad=0.015',
+            facecolor='#11131B', edgecolor=CU, lw=1.0, zorder=2))
+        ax_d.text((x1+x2)/2, (y1+y2)/2, symbol,
+                  ha='center', va='center', fontsize=15,
+                  color=HI, zorder=3)
+    def sig(x, y, symbol, ha='center', va='center'):
+        ax_d.text(x, y, symbol, ha=ha, va=va, fontsize=10,
+                  color=CU_RGB.tolist(), zorder=5)
+
+    # ── Wires ─────────────────────────────────────────────────────────────────
+    sline([0.01, PX1], [WY, WY]);        sarrow(PX1+0.005, WY,  '>')
+    sline([PX2,  0.97],[ZY, ZY]);        sarrow(0.965,      ZY,  '>')
+    sline([QX, QX], [PY2, FY1]);         sarrow(QX, FY1+0.005,  '^')
+    sline([VX, VX], [FY1, PY2]);         sarrow(VX, PY2-0.005,  'v')
+    sline([YX, YX], [PY1, KY2]);         sarrow(YX, KY2+0.005,  'v')
+    sline([UX, UX], [KY2, PY1]);         sarrow(UX, PY1-0.005,  '^')
+
+    # ── Blocks ────────────────────────────────────────────────────────────────
+    block(PX1,PY1,PX2,PY2, r'$P$')
+    block(KX1,KY1,KX2,KY2, r'$K$')
+    block(FX1,FY1,FX2,FY2, r'$\Phi$')
+
+    # ── Signal symbols only (mathtext, no text labels) ────────────────────────
+    sig(0.01,  WY + 0.08,            r'$w$',  ha='left')   # above the w wire
+    sig(0.88,  ZY + 0.08,            r'$z$',  ha='center') # just before right edge
+    sig(VX-0.03, (PY2+FY1)/2,       r'$v$',  ha='right')
+    sig(QX+0.03, (PY2+FY1)/2,       r'$q$',  ha='left')
+    sig(UX-0.03, (PY1+KY2)/2,       r'$u$',  ha='right')
+    sig(YX+0.03, (PY1+KY2)/2,       r'$y$',  ha='left')
+
+    # ── Traveling pulse dots — one per wire, all synchronised ────────────────
+    def lerp_path(pts, t):
+        segs = list(zip(pts[:-1], pts[1:]))
+        lens = [np.hypot(b[0]-a[0], b[1]-a[1]) for a,b in segs]
+        total = sum(lens)
+        if total == 0: return pts[0]
+        tgt = t*total; cum = 0.0
+        for (a,b),l in zip(segs, lens):
+            if cum+l >= tgt:
+                f = (tgt-cum)/l if l>0 else 0.0
+                return (a[0]+f*(b[0]-a[0]), a[1]+f*(b[1]-a[1]))
+            cum += l
+        return pts[-1]
+
+    # Six wires — each dot stays on its own arrow, never enters a block
+    wires = [
+        [(0.01,  WY),  (PX1,   WY)],    # w  → P  (left)
+        [(PX2,   ZY),  (0.97,  ZY)],    # P  → z  (right)
+        [(YX,   PY1),  (YX,   KY2)],    # P  → K  (y, down)
+        [(UX,   KY2),  (UX,   PY1)],    # K  → P  (u, up)
+        [(QX,   PY2),  (QX,   FY1)],    # P  → Φ  (q, up)
+        [(VX,   FY1),  (VX,   PY2)],    # Φ  → P  (v, down)
+    ]
+
+    # One dot + glow per wire
+    wire_dots = []
+    for _ in wires:
+        dot,  = ax_d.plot([], [], 'o', color=CU, ms=5.5, zorder=8)
+        glow, = ax_d.plot([], [], 'o', color=CU, ms=12,  zorder=7, alpha=0)
+        wire_dots.append((dot, glow))
+
+    surf_h       = [None]
+    contour_arts_s = []
+    t_phys  = [0.0]
+    state_s = {'u': u_s.copy(), 'up': u_prev_s.copy()}
+
+    def update(i):
+        # ── PDE physics (identical to gif-pde-control.gif) ───────────────────
+        u_  = state_s['u']; up_ = state_s['up']
+        alpha = float(np.clip(i/55.0, 0.0, 1.0))**2.2
+        t_pos = float(np.clip(i/55.0, 0.0, 1.0))
+        t_sm  = t_pos*t_pos*(3.0-2.0*t_pos)
+
+        sigma_s = 0.005 + 0.007*t_sm
+        G_anim_s = np.zeros_like(Xs)
+        for (sx,sy),(ex,ey) in zip(sync_start_s, sync_end_s):
+            px=sx+(ex-sx)*t_sm; py=sy+(ey-sy)*t_sm
+            G_anim_s += np.exp(-((Xs-px)**2+(Ys-py)**2)/sigma_s)
+        G_anim_s /= G_anim_s.max()
+
+        denom_s = 1.0 + gamma_s*dt_s
+        for _ in range(12):
+            t_phys[0] += dt_s
+            u_new = np.zeros_like(u_)
+            u_new[1:-1,1:-1] = (
+                (2*u_[1:-1,1:-1] - up_[1:-1,1:-1]*(1.0-gamma_s*dt_s)
+                 + r_s*(u_[2:,1:-1]+u_[:-2,1:-1]+u_[1:-1,2:]+u_[1:-1,:-2]
+                        -4*u_[1:-1,1:-1])
+                ) / denom_s)
+            u_new *= sponge_s; up_[:]=u_[:]; u_[:]=u_new
+
+        u_sync_s  = G_anim_s * np.sin(OMEGA*t_phys[0]) * 0.88
+        u_display_s = (1.0-alpha)**1.4 * np.clip(u_,-1,1) + alpha*u_sync_s
+        Z_p = (u_display_s * circ_win_s).astype(float); Z_p[circ_mask_s]=np.nan
+
+        for c in contour_arts_s:
+            try: c.remove()
+            except: pass
+        contour_arts_s.clear()
+
+        if surf_h[0] is not None:
+            surf_h[0].remove()
+        surf_h[0] = ax_s.plot_surface(
+            Xs, Ys, Z_p, cmap=cmap, vmin=-1.0, vmax=1.0,
+            rcount=80, ccount=80, linewidth=0, antialiased=True)
+
+        # Outer contour — same as gif-pde-control.gif
+        if alpha > 0.45:
+            from matplotlib.path import Path as MplPath
+            fig_tmp, ax_tmp = plt.subplots()
+            cs = ax_tmp.contour(Xs, Ys, G_anim_s * alpha, levels=[0.050])
+            all_loops = []
+            for coll in cs.collections:
+                for path in coll.get_paths():
+                    verts, codes = path.vertices, path.codes
+                    if codes is None:
+                        all_loops.append(verts.copy())
+                    else:
+                        cuts = [0] + [k for k in range(1, len(codes))
+                                      if codes[k] == MplPath.MOVETO]
+                        cuts.append(len(codes))
+                        for a2, b2 in zip(cuts, cuts[1:]):
+                            seg = verts[a2:b2]
+                            if len(seg) > 3:
+                                all_loops.append(seg.copy())
+            plt.close(fig_tmp)
+            if all_loops:
+                outer = max(all_loops, key=lambda v: len(v))
+                contour_arts_s.extend(
+                    ax_s.plot(outer[:, 0], outer[:, 1], 0.02,
+                              color=CU, linewidth=2.5,
+                              linestyle=(0, (3, 4)), zorder=6)
+                )
+
+        # ── Arrow pulse dots — slower independent speed (1.5 loops / GIF) ──────
+        phi_dot = i * 2.5 * 2 * np.pi / N_FRAMES
+        phi = OMEGA * t_phys[0]   # PDE surface phase (unchanged)
+        t_m  = (phi           % (2*np.pi)) / (2*np.pi)
+        t_ff = ((phi+np.pi/2) % (2*np.pi)) / (2*np.pi)
+        t_fb = ((phi-np.pi/2) % (2*np.pi)) / (2*np.pi)
+
+        # Causal signal-flow cascade — each wire has a phase offset that
+        # reflects when the signal actually propagates in a feedback loop:
+        #   w→P first, then P emits y/q, then K/Φ process and return u/v,
+        #   finally z exits P.
+        #
+        #  wire index:  0=w→P  1=P→z  2=P→y  3=K→u  4=P→q  5=Φ→v
+        causal_offsets = [
+            0,                      # 0  w → P   (input enters)
+            2*np.pi * 3/5,          # 1  P → z   (output after full loop)
+            2*np.pi * 1/5,          # 2  P → K   (y measurement leaves P)
+            2*np.pi * 2/5,          # 3  K → P   (u control returns)
+            2*np.pi * 1/5,          # 4  P → Φ   (q leaves P, same as y)
+            2*np.pi * 2/5,          # 5  Φ → P   (v returns, same as u)
+        ]
+
+        for (dot, glow), wire, offset in zip(wire_dots, wires, causal_offsets):
+            ph  = phi_dot + offset
+            t_n = (ph % (2*np.pi)) / (2*np.pi)
+            x, y = lerp_path(wire, t_n)
+            dot.set_data([x], [y]);  glow.set_data([x], [y])
+            a = 0.40 + 0.60*(0.5 + 0.5*np.sin(ph))
+            dot.set_alpha(a);        glow.set_alpha(a * 0.25)
+
+    save_gif(fig, update,
+             os.path.join(OUT, 'gif-control-diagram.gif'), n=N_FRAMES)
+
+
+# ─────────────────────────────────────────────────────────────────────────────
 # GIF 2 — Physics-Informed Learning  ·  surrogate converging on a nonlinear orbit
 # ─────────────────────────────────────────────────────────────────────────────
 def make_learning_gif():
