@@ -414,9 +414,9 @@ def make_control_diagram_gif():
     sline([UX, UX], [KY2, PY1]);         sarrow(UX, PY1-0.005,  '^')
 
     # ── Blocks ────────────────────────────────────────────────────────────────
-    block(PX1,PY1,PX2,PY2, r'$P$')
-    block(KX1,KY1,KX2,KY2, r'$K$')
-    block(FX1,FY1,FX2,FY2, r'$\Phi$')
+    block(PX1,PY1,PX2,PY2, r'$P_{\infty}$')
+    block(KX1,KY1,KX2,KY2, r'$\mathcal{K}$')
+    block(FX1,FY1,FX2,FY2, r'$\Phi_{\infty}$')
 
     # ── Signal symbols only (mathtext, no text labels) ────────────────────────
     sig(0.01,  WY + 0.08,            r'$w$',  ha='left')   # above the w wire
