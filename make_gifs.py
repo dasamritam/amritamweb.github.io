@@ -303,7 +303,9 @@ def make_pde_gif():
                 outer = max(all_loops, key=lambda v: len(v))
                 contour_arts.extend(
                     ax.plot(outer[:, 0], outer[:, 1], 0.02,
-                            color='#1a0a04', linewidth=2.2, zorder=6)
+                            color=CU, linewidth=3.5,
+                            linestyle=(0, (3, 4)),   # dotted: 3 on, 4 off
+                            zorder=6)
                 )
 
     save_gif(fig, update, os.path.join(OUT, 'gif-pde-control.gif'), n=80)
