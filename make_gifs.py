@@ -122,69 +122,107 @@ def save_gif(fig, update_fn, path, n=FRAMES):
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-# GIF 1 — Control of PDEs  ·  1-D wave driven to rest by boundary feedback
+# GIF 1 — Control of PDEs  ·  2-D wave equation as a rotating 3-D surface
 # ─────────────────────────────────────────────────────────────────────────────
 def make_pde_gif():
-    Nx  = 140
-    x   = np.linspace(0, 1, Nx)
-    c   = 1.0
-    dx  = x[1] - x[0]
-    dt  = 0.82 * dx / c           # Courant-stable
-    r   = (c * dt / dx) ** 2
-    alpha = 0.20                   # boundary absorption
+    from mpl_toolkits.mplot3d import Axes3D          # noqa: F401
+    from matplotlib.colors import LinearSegmentedColormap as LSC
 
-    u     = 0.78 * np.exp(-((x - 0.30) ** 2) / 0.008) \
-          + 0.38 * np.exp(-((x - 0.65) ** 2) / 0.005)
+    # ── Grid & wave parameters ────────────────────────────────────────────────
+    Nx = Ny = 82
+    x  = np.linspace(0, 1, Nx)
+    y  = np.linspace(0, 1, Ny)
+    X, Y = np.meshgrid(x, y)          # both (Ny, Nx)
+
+    c  = 1.2
+    dx = x[1] - x[0]
+    dt = 0.38 * dx / (c * np.sqrt(2))  # 2-D Courant-stable
+    r  = (c * dt / dx) ** 2
+
+    # Sponge layer: absorb waves at all four edges
+    margin = 14
+    sponge = np.ones((Ny, Nx))
+    for k in range(margin):
+        f = 1.0 - 0.055 * (margin - k) / margin
+        sponge[k, :]    = np.minimum(sponge[k, :],    f)
+        sponge[-1-k, :] = np.minimum(sponge[-1-k, :], f)
+        sponge[:, k]    = np.minimum(sponge[:, k],    f)
+        sponge[:, -1-k] = np.minimum(sponge[:, -1-k], f)
+
+    # Initial state: five Gaussian plucks at different heights / signs
+    u = (0.88 * np.exp(-((X-0.27)**2 + (Y-0.32)**2) / 0.0055)
+       + 0.70 * np.exp(-((X-0.73)**2 + (Y-0.67)**2) / 0.0065)
+       - 0.58 * np.exp(-((X-0.55)**2 + (Y-0.22)**2) / 0.0050)
+       + 0.50 * np.exp(-((X-0.22)**2 + (Y-0.74)**2) / 0.0070)
+       - 0.42 * np.exp(-((X-0.76)**2 + (Y-0.30)**2) / 0.0058))
     u_prev = u.copy()
 
-    fig, ax = make_fig()
-    draw_tron_grid(ax)
+    # Sustained sinusoidal source — keeps the surface alive throughout
+    src = 0.10 * np.exp(-((X-0.50)**2 + (Y-0.50)**2) / 0.012)
 
-    # y-axis spans [-1, 1], mapped to [0.15, 0.85] in axes coords
-    def to_ax(u_vals):
-        return 0.15 + (u_vals + 1) * 0.35
+    # ── Colormap: site dark → copper → cream ─────────────────────────────────
+    cmap = LSC.from_list('site', [
+        ( 10/255,  11/255,  16/255),   # #0A0B10  troughs
+        ( 55/255,  38/255,  18/255),   # warm dark midpoint
+        (208/255, 138/255,  79/255),   # #D08A4F  copper peaks
+        (236/255, 231/255, 220/255),   # #ECE7DC  highest crests
+    ], N=256)
 
-    # static baseline
-    ax.axhline(0.50, color=DIM_RGB, alpha=0.35, lw=0.6, zorder=2)
+    # ── Figure & 3-D axes ─────────────────────────────────────────────────────
+    fig = plt.figure(figsize=(W / DPI, H / DPI))
+    fig.patch.set_facecolor(BG)
+    fig.subplots_adjust(0, 0, 1, 1)
 
-    fill_art = [None]
-    line, = ax.plot(x, to_ax(u), color=CU, lw=2.0,
-                    solid_capstyle='round', zorder=5)
+    ax = fig.add_subplot(111, projection='3d')
+    ax.set_facecolor(BG)
 
-    add_vignette(ax)
-    scan_art = [None]
+    # Transparent panes with very faint copper edges (matches tron-grid feel)
+    cu_edge = (208/255, 138/255, 79/255, 0.12)
+    for axis in (ax.xaxis, ax.yaxis, ax.zaxis):
+        axis.pane.fill = False
+        axis.pane.set_edgecolor(cu_edge)
 
-    state = {'u': u.copy(), 'up': u_prev.copy()}
+    ax.grid(False)
+    ax.set_xticks([]); ax.set_yticks([]); ax.set_zticks([])
+    ax.set_zlim(-1.05, 1.05)
+
+    surf_h = [None]
+    t_phys = [0.0]
+    state  = {'u': u.copy(), 'up': u_prev.copy()}
 
     def update(i):
         u_  = state['u']
         up_ = state['up']
-        for _ in range(6):
+
+        # Advance wave equation (10 sub-steps per frame)
+        for _ in range(10):
+            t_phys[0] += dt
             u_new = np.zeros_like(u_)
-            u_new[1:-1] = (2*u_[1:-1] - up_[1:-1]
-                           + r*(u_[2:] - 2*u_[1:-1] + u_[:-2]))
-            u_new[0]  = u_new[1]  * (1 - alpha)
-            u_new[-1] = u_new[-2] * (1 - alpha)
+            u_new[1:-1, 1:-1] = (
+                2*u_[1:-1, 1:-1] - up_[1:-1, 1:-1]
+                + r * (u_[2:,  1:-1] + u_[:-2, 1:-1]
+                     + u_[1:-1, 2:  ] + u_[1:-1, :-2]
+                     - 4*u_[1:-1, 1:-1])
+            )
+            # Sinusoidal source at centre
+            u_new += src * np.sin(2 * np.pi * 3.5 * t_phys[0]) * dt**2
+            u_new *= sponge
             up_[:] = u_[:]
-            u_[:] = u_new
+            u_[:]  = u_new
 
-        y_ax = to_ax(np.clip(u_, -1, 1))
-        line.set_ydata(y_ax)
+        # Redraw surface
+        if surf_h[0] is not None:
+            surf_h[0].remove()
 
-        # refresh fill (remove old, draw new below vignette)
-        for c_ in [a for a in ax.collections if a.zorder < 10]:
-            c_.remove()
-        ax.fill_between(x, 0.50, y_ax,
-                        where=(y_ax > 0.50),
-                        color=CU, alpha=0.10, zorder=3)
-        ax.fill_between(x, y_ax, 0.50,
-                        where=(y_ax < 0.50),
-                        color=CU, alpha=0.10, zorder=3)
+        surf_h[0] = ax.plot_surface(
+            X, Y, np.clip(u_, -1.0, 1.0),
+            cmap=cmap, vmin=-1.0, vmax=1.0,
+            rcount=48, ccount=48,
+            linewidth=0, antialiased=True,
+        )
 
-        # scanline (remove old, add new on top of vignette)
-        for a in ax.lines[2:]:           # keep baseline + wave line
-            pass
-        add_scanline(ax, i)
+        # Slow continuous rotation (~130° over full GIF, loops smoothly)
+        ax.view_init(elev=28, azim=220 + i * 130 / FRAMES)
 
     save_gif(fig, update, os.path.join(OUT, 'gif-pde-control.gif'))
 
