@@ -122,118 +122,107 @@ def save_gif(fig, update_fn, path, n=FRAMES):
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-# GIF 1 — Control of PDEs  ·  top-down 2-D wave: chaotic → 4 synchronized bubbles
+# GIF 1 — Control of PDEs  ·  2-D wave equation as a rotating 3-D surface
 # ─────────────────────────────────────────────────────────────────────────────
 def make_pde_gif():
+    from mpl_toolkits.mplot3d import Axes3D          # noqa: F401
     from matplotlib.colors import LinearSegmentedColormap as LSC
 
-    # ── Grid ─────────────────────────────────────────────────────────────────
-    Nx = Ny = 110
+    # ── Grid & wave parameters ────────────────────────────────────────────────
+    Nx = Ny = 82
     x  = np.linspace(0, 1, Nx)
     y  = np.linspace(0, 1, Ny)
-    X, Y = np.meshgrid(x, y)       # shape (Ny, Nx)
+    X, Y = np.meshgrid(x, y)          # both (Ny, Nx)
 
-    c  = 1.0
+    c  = 1.2
     dx = x[1] - x[0]
-    dt = 0.36 * dx / np.sqrt(2)   # 2-D Courant-stable
+    dt = 0.38 * dx / (c * np.sqrt(2))  # 2-D Courant-stable
     r  = (c * dt / dx) ** 2
 
-    # Global damping — dissipates chaotic initial energy quickly
-    gamma = 1.8                    # decay rate (1/s)
-
-    # Sponge at edges (extra absorption)
-    margin = 12
+    # Sponge layer: absorb waves at all four edges
+    margin = 14
     sponge = np.ones((Ny, Nx))
     for k in range(margin):
-        f = 1.0 - 0.06 * (margin - k) / margin
+        f = 1.0 - 0.055 * (margin - k) / margin
         sponge[k, :]    = np.minimum(sponge[k, :],    f)
         sponge[-1-k, :] = np.minimum(sponge[-1-k, :], f)
         sponge[:, k]    = np.minimum(sponge[:, k],    f)
         sponge[:, -1-k] = np.minimum(sponge[:, -1-k], f)
 
-    # ── Initial chaotic state: many random Gaussian bumps ────────────────────
-    np.random.seed(7)
-    u = np.zeros((Ny, Nx))
-    for _ in range(32):
-        cx  = np.random.uniform(0.06, 0.94)
-        cy  = np.random.uniform(0.06, 0.94)
-        amp = np.random.uniform(0.55, 1.0) * np.random.choice([-1, 1])
-        sig = np.random.uniform(0.0028, 0.006)
-        u  += amp * np.exp(-((X - cx)**2 + (Y - cy)**2) / sig)
-    u = np.clip(u, -1.0, 1.0)
+    # Initial state: five Gaussian plucks at different heights / signs
+    u = (0.88 * np.exp(-((X-0.27)**2 + (Y-0.32)**2) / 0.0055)
+       + 0.70 * np.exp(-((X-0.73)**2 + (Y-0.67)**2) / 0.0065)
+       - 0.58 * np.exp(-((X-0.55)**2 + (Y-0.22)**2) / 0.0050)
+       + 0.50 * np.exp(-((X-0.22)**2 + (Y-0.74)**2) / 0.0070)
+       - 0.42 * np.exp(-((X-0.76)**2 + (Y-0.30)**2) / 0.0058))
     u_prev = u.copy()
 
-    # ── Synchronized target sources: 4 bells at the (2,2)-mode antinodes ────
-    # antinodes of sin(2πx)·sin(2πy) on [0,1]² sit at (0.25,0.25) etc.
-    src_pos = [(0.25, 0.25), (0.75, 0.25), (0.25, 0.75), (0.75, 0.75)]
-    src = sum(np.exp(-((X - px)**2 + (Y - py)**2) / 0.004)
-              for px, py in src_pos)
-    src /= src.max()
-    # Drive at the resonant frequency of the (2,2) Dirichlet mode
-    omega_22 = c * np.pi * 2.0 * np.sqrt(2)   # ≈ 8.89 rad/s
+    # Sustained sinusoidal source — keeps the surface alive throughout
+    src = 0.10 * np.exp(-((X-0.50)**2 + (Y-0.50)**2) / 0.012)
 
     # ── Colormap: site dark → copper → cream ─────────────────────────────────
     cmap = LSC.from_list('site', [
-        ( 10/255,  11/255,  16/255),   # #0A0B10  troughs / background
-        ( 45/255,  28/255,  10/255),   # warm dark
-        (208/255, 138/255,  79/255),   # #D08A4F  copper
-        (236/255, 231/255, 220/255),   # #ECE7DC  bright crests
+        ( 10/255,  11/255,  16/255),   # #0A0B10  troughs
+        ( 55/255,  38/255,  18/255),   # warm dark midpoint
+        (208/255, 138/255,  79/255),   # #D08A4F  copper peaks
+        (236/255, 231/255, 220/255),   # #ECE7DC  highest crests
     ], N=256)
 
-    # ── Figure ────────────────────────────────────────────────────────────────
-    fig, ax = make_fig()
-    draw_tron_grid(ax)
+    # ── Figure & 3-D axes ─────────────────────────────────────────────────────
+    fig = plt.figure(figsize=(W / DPI, H / DPI))
+    fig.patch.set_facecolor(BG)
+    fig.subplots_adjust(0, 0, 1, 1)
 
-    im = ax.imshow(u, cmap=cmap, vmin=-1.0, vmax=1.0,
-                   extent=(0, 1, 0, 1), origin='lower',
-                   aspect='auto', zorder=4, interpolation='bilinear')
+    ax = fig.add_subplot(111, projection='3d')
+    ax.set_facecolor(BG)
 
-    add_vignette(ax)
+    # Transparent panes with very faint copper edges (matches tron-grid feel)
+    cu_edge = (208/255, 138/255, 79/255, 0.12)
+    for axis in (ax.xaxis, ax.yaxis, ax.zaxis):
+        axis.pane.fill = False
+        axis.pane.set_edgecolor(cu_edge)
 
-    scan_lines = []
-    t_phys     = [0.0]
-    state      = {'u': u.copy(), 'up': u_prev.copy()}
+    ax.grid(False)
+    ax.set_xticks([]); ax.set_yticks([]); ax.set_zticks([])
+    ax.set_zlim(-1.05, 1.05)
+
+    surf_h = [None]
+    t_phys = [0.0]
+    state  = {'u': u.copy(), 'up': u_prev.copy()}
 
     def update(i):
         u_  = state['u']
         up_ = state['up']
 
-        # Source amplitude ramps up smoothly from 0 → A_max
-        A_src = 28.0 * (i / max(FRAMES - 1, 1)) ** 1.6
-
-        for _ in range(12):
+        # Advance wave equation (10 sub-steps per frame)
+        for _ in range(10):
             t_phys[0] += dt
             u_new = np.zeros_like(u_)
-
-            # Damped leapfrog:  u_tt + 2γu_t = c²∇²u + f
-            denom = 1.0 + gamma * dt
             u_new[1:-1, 1:-1] = (
-                (2*u_[1:-1,1:-1]
-                 - up_[1:-1,1:-1] * (1.0 - gamma * dt)
-                 + r * (u_[2:,  1:-1] + u_[:-2, 1:-1]
-                      + u_[1:-1, 2:  ] + u_[1:-1, :-2]
-                      - 4 * u_[1:-1, 1:-1])
-                 + A_src * src[1:-1, 1:-1]
-                   * np.sin(omega_22 * t_phys[0]) * dt**2
-                ) / denom
+                2*u_[1:-1, 1:-1] - up_[1:-1, 1:-1]
+                + r * (u_[2:,  1:-1] + u_[:-2, 1:-1]
+                     + u_[1:-1, 2:  ] + u_[1:-1, :-2]
+                     - 4*u_[1:-1, 1:-1])
             )
+            # Sinusoidal source at centre
+            u_new += src * np.sin(2 * np.pi * 3.5 * t_phys[0]) * dt**2
             u_new *= sponge
             up_[:] = u_[:]
             u_[:]  = u_new
 
-        im.set_data(np.clip(u_, -1.0, 1.0))
+        # Redraw surface
+        if surf_h[0] is not None:
+            surf_h[0].remove()
 
-        # Scanline — remove previous, add fresh one
-        for l in scan_lines:
-            try: l.remove()
-            except: pass
-        scan_lines.clear()
-        sy = 1.0 - i / FRAMES
-        scan_lines.append(
-            ax.axhline(sy, color=CU_RGB, alpha=0.22, lw=0.8,
-                       zorder=16, solid_capstyle='butt'))
-        scan_lines.append(
-            ax.axhline(sy, color=CU_RGB, alpha=0.06, lw=4.0, zorder=15))
+        surf_h[0] = ax.plot_surface(
+            X, Y, np.clip(u_, -1.0, 1.0),
+            cmap=cmap, vmin=-1.0, vmax=1.0,
+            rcount=48, ccount=48,
+            linewidth=0, antialiased=True,
+        )
+
+        # Slow continuous rotation (~130° over full GIF, loops smoothly)
+        ax.view_init(elev=28, azim=220 + i * 130 / FRAMES)
 
     save_gif(fig, update, os.path.join(OUT, 'gif-pde-control.gif'))
 
