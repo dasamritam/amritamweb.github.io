@@ -122,69 +122,94 @@ def save_gif(fig, update_fn, path, n=FRAMES):
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-# GIF 1 — Control of PDEs  ·  2-D wave equation as a rotating 3-D surface
+# GIF 1 — Control of PDEs  ·  3-D surface, no box, chaotic → 4 synchronized peaks
 # ─────────────────────────────────────────────────────────────────────────────
 def make_pde_gif():
     from mpl_toolkits.mplot3d import Axes3D          # noqa: F401
     from matplotlib.colors import LinearSegmentedColormap as LSC
 
-    # ── Grid & wave parameters ────────────────────────────────────────────────
-    Nx = Ny = 82
+    # ── Grid ─────────────────────────────────────────────────────────────────
+    Nx = Ny = 150
     x  = np.linspace(0, 1, Nx)
     y  = np.linspace(0, 1, Ny)
-    X, Y = np.meshgrid(x, y)          # both (Ny, Nx)
+    X, Y = np.meshgrid(x, y)
 
-    c  = 1.2
+    c  = 1.0
     dx = x[1] - x[0]
-    dt = 0.38 * dx / (c * np.sqrt(2))  # 2-D Courant-stable
+    dt = 0.36 * dx / np.sqrt(2)
     r  = (c * dt / dx) ** 2
+    gamma = 0.8                    # damps chaotic physics; synced display takes over
 
-    # Sponge layer: absorb waves at all four edges
-    margin = 14
+    # Sponge at edges
+    margin = 12
     sponge = np.ones((Ny, Nx))
     for k in range(margin):
-        f = 1.0 - 0.055 * (margin - k) / margin
+        f = 1.0 - 0.06 * (margin - k) / margin
         sponge[k, :]    = np.minimum(sponge[k, :],    f)
         sponge[-1-k, :] = np.minimum(sponge[-1-k, :], f)
         sponge[:, k]    = np.minimum(sponge[:, k],    f)
         sponge[:, -1-k] = np.minimum(sponge[:, -1-k], f)
 
-    # Initial state: five Gaussian plucks at different heights / signs
-    u = (0.88 * np.exp(-((X-0.27)**2 + (Y-0.32)**2) / 0.0055)
-       + 0.70 * np.exp(-((X-0.73)**2 + (Y-0.67)**2) / 0.0065)
-       - 0.58 * np.exp(-((X-0.55)**2 + (Y-0.22)**2) / 0.0050)
-       + 0.50 * np.exp(-((X-0.22)**2 + (Y-0.74)**2) / 0.0070)
-       - 0.42 * np.exp(-((X-0.76)**2 + (Y-0.30)**2) / 0.0058))
+    # ── Chaotic initial state ─────────────────────────────────────────────────
+    np.random.seed(7)
+    u = np.zeros((Ny, Nx))
+    for _ in range(28):
+        cx  = np.random.uniform(0.06, 0.94)
+        cy  = np.random.uniform(0.06, 0.94)
+        amp = np.random.uniform(0.55, 1.0) * np.random.choice([-1, 1])
+        sig = np.random.uniform(0.003, 0.006)
+        u  += amp * np.exp(-((X - cx)**2 + (Y - cy)**2) / sig)
+    u = np.clip(u, -1.0, 1.0)
     u_prev = u.copy()
 
-    # Sustained sinusoidal source — keeps the surface alive throughout
-    src = 0.10 * np.exp(-((X-0.50)**2 + (Y-0.50)**2) / 0.012)
+    # ── Circular window — smooth cosine taper so the edge is perfectly round ─
+    dist_c    = np.sqrt((X - 0.5)**2 + (Y - 0.5)**2)
+    R_max     = 0.49
+    R_fade    = 0.022              # ~3 rendered cells at rcount=130 — smooths without visible fade
+    R_inner   = R_max - R_fade
+    circ_window = np.where(
+        dist_c <= R_inner,
+        1.0,
+        np.where(
+            dist_c <= R_max,
+            0.5 * (1.0 + np.cos(np.pi * (dist_c - R_inner) / R_fade)),
+            0.0
+        )
+    )
+    circ_mask = dist_c > R_max     # hard NaN only beyond the taper
 
-    # ── Colormap: site dark → copper → cream ─────────────────────────────────
+    # ── Synchronized template: bumps travel from centre toward corners ───────
+    # Positions kept inside the disc (distance from centre ≤ 0.39 < 0.46)
+    sync_start = [(0.44, 0.44), (0.56, 0.44), (0.44, 0.56), (0.56, 0.56)]
+    sync_end   = [(0.30, 0.30), (0.70, 0.30), (0.30, 0.70), (0.70, 0.70)]
+    omega_sync = 8.0               # rad/s — slow, majestic oscillation (~22 frames/cycle)
+
+    # ── Colormap: site dark → warm dark → copper → cream ────────────────────
     cmap = LSC.from_list('site', [
-        ( 10/255,  11/255,  16/255),   # #0A0B10  troughs
-        ( 55/255,  38/255,  18/255),   # warm dark midpoint
-        (208/255, 138/255,  79/255),   # #D08A4F  copper peaks
-        (236/255, 231/255, 220/255),   # #ECE7DC  highest crests
+        ( 10/255,  11/255,  16/255),
+        ( 45/255,  28/255,  10/255),
+        (208/255, 138/255,  79/255),
+        (236/255, 231/255, 220/255),
     ], N=256)
 
-    # ── Figure & 3-D axes ─────────────────────────────────────────────────────
+    # ── Figure: dark background, 3-D axes with ALL box elements removed ──────
     fig = plt.figure(figsize=(W / DPI, H / DPI))
     fig.patch.set_facecolor(BG)
-    fig.subplots_adjust(0, 0, 1, 1)
+    fig.subplots_adjust(left=-0.18, right=1.18, bottom=-0.20, top=1.20)
 
     ax = fig.add_subplot(111, projection='3d')
     ax.set_facecolor(BG)
-
-    # Transparent panes with very faint copper edges (matches tron-grid feel)
-    cu_edge = (208/255, 138/255, 79/255, 0.12)
+    ax.set_axis_off()
     for axis in (ax.xaxis, ax.yaxis, ax.zaxis):
         axis.pane.fill = False
-        axis.pane.set_edgecolor(cu_edge)
-
-    ax.grid(False)
-    ax.set_xticks([]); ax.set_yticks([]); ax.set_zticks([])
-    ax.set_zlim(-1.05, 1.05)
+        axis.pane.set_visible(False)
+        axis.pane.set_edgecolor('none')
+        axis.line.set_linewidth(0)
+    ax.set_zlim(-1.1, 1.1)
+    # Narrow xy limits to crop dead corners and zoom in on the disc
+    ax.set_xlim(0.04, 0.96)
+    ax.set_ylim(0.04, 0.96)
+    ax.view_init(elev=38, azim=45)
 
     surf_h = [None]
     t_phys = [0.0]
@@ -194,37 +219,58 @@ def make_pde_gif():
         u_  = state['u']
         up_ = state['up']
 
-        # Advance wave equation (10 sub-steps per frame)
-        for _ in range(10):
+        # ── Physics: damped wave (chaos decays naturally) ─────────────────
+        for _ in range(12):
             t_phys[0] += dt
             u_new = np.zeros_like(u_)
+            denom = 1.0 + gamma * dt
             u_new[1:-1, 1:-1] = (
-                2*u_[1:-1, 1:-1] - up_[1:-1, 1:-1]
-                + r * (u_[2:,  1:-1] + u_[:-2, 1:-1]
-                     + u_[1:-1, 2:  ] + u_[1:-1, :-2]
-                     - 4*u_[1:-1, 1:-1])
+                (2 * u_[1:-1, 1:-1]
+                 - up_[1:-1, 1:-1] * (1.0 - gamma * dt)
+                 + r * (u_[2:,  1:-1] + u_[:-2, 1:-1]
+                      + u_[1:-1, 2:  ] + u_[1:-1, :-2]
+                      - 4 * u_[1:-1, 1:-1])
+                ) / denom
             )
-            # Sinusoidal source at centre
-            u_new += src * np.sin(2 * np.pi * 3.5 * t_phys[0]) * dt**2
             u_new *= sponge
             up_[:] = u_[:]
             u_[:]  = u_new
 
-        # Redraw surface
+        # ── Display: chaos slowly sinks, bumps travel toward corners ────────
+        # alpha: power 2.2 → very gradual start, reaches 1 at frame 55
+        alpha = float(np.clip(i / 55.0, 0.0, 1.0)) ** 2.2
+
+        # Smoothstep for position travel (independent of alpha blend weight)
+        t_pos = float(np.clip(i / 55.0, 0.0, 1.0))
+        t_smooth = t_pos * t_pos * (3.0 - 2.0 * t_pos)   # smoothstep 0→1
+
+        # Build animated Gaussian template: centres move, sigma grows
+        sigma = 0.005 + 0.007 * t_smooth          # tight at start, broad at corners
+        G_anim = np.zeros_like(X)
+        for (sx, sy), (ex, ey) in zip(sync_start, sync_end):
+            px = sx + (ex - sx) * t_smooth
+            py = sy + (ey - sy) * t_smooth
+            G_anim += np.exp(-((X - px)**2 + (Y - py)**2) / sigma)
+        G_anim /= G_anim.max()
+
+        u_sync    = G_anim * np.sin(omega_sync * t_phys[0]) * 0.88
+        u_display = (1.0 - alpha) ** 1.4 * np.clip(u_, -1.0, 1.0) + alpha * u_sync
+
+        # Smooth circular boundary: cosine taper to zero, then NaN outside
+        Z_plot = (u_display * circ_window).astype(float)
+        Z_plot[circ_mask] = np.nan
+
         if surf_h[0] is not None:
             surf_h[0].remove()
 
         surf_h[0] = ax.plot_surface(
-            X, Y, np.clip(u_, -1.0, 1.0),
+            X, Y, Z_plot,
             cmap=cmap, vmin=-1.0, vmax=1.0,
-            rcount=48, ccount=48,
+            rcount=130, ccount=130,
             linewidth=0, antialiased=True,
         )
 
-        # Slow continuous rotation (~130° over full GIF, loops smoothly)
-        ax.view_init(elev=28, azim=220 + i * 130 / FRAMES)
-
-    save_gif(fig, update, os.path.join(OUT, 'gif-pde-control.gif'))
+    save_gif(fig, update, os.path.join(OUT, 'gif-pde-control.gif'), n=80)
 
 
 # ─────────────────────────────────────────────────────────────────────────────
