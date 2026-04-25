@@ -393,14 +393,16 @@ def make_control_diagram_gif():
         ax_d.plot(xs, ys, color=CU, lw=lw, linestyle=ls, zorder=1)
     def sarrow(x, y, m):
         ax_d.plot([x],[y], m, color=CU, ms=4, zorder=2)
-    def block(x1,y1,x2,y2, symbol):
+    def block(x1,y1,x2,y2, symbol, highlight=False):
+        fc = CU if highlight else '#11131B'
+        tc = '#0A0B10' if highlight else HI
         ax_d.add_patch(FancyBboxPatch(
             (x1,y1), x2-x1, y2-y1,
             boxstyle='round,pad=0.015',
-            facecolor='#11131B', edgecolor=CU, lw=1.0, zorder=2))
+            facecolor=fc, edgecolor=CU, lw=1.0, zorder=2))
         ax_d.text((x1+x2)/2, (y1+y2)/2, symbol,
                   ha='center', va='center', fontsize=15,
-                  color=HI, zorder=3)
+                  color=tc, zorder=3)
     def sig(x, y, symbol, ha='center', va='center'):
         ax_d.text(x, y, symbol, ha=ha, va=va, fontsize=10,
                   color=CU_RGB.tolist(), zorder=5)
@@ -415,7 +417,7 @@ def make_control_diagram_gif():
 
     # ── Blocks ────────────────────────────────────────────────────────────────
     block(PX1,PY1,PX2,PY2, r'$P_{\infty}$')
-    block(KX1,KY1,KX2,KY2, r'$\mathcal{K}$')
+    block(KX1,KY1,KX2,KY2, r'$\mathcal{K}$', highlight=True)
     block(FX1,FY1,FX2,FY2, r'$\Phi_{\infty}$')
 
     # ── Signal symbols only (mathtext, no text labels) ────────────────────────
