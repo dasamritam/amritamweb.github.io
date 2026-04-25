@@ -587,7 +587,6 @@ def make_learning_gif():
     yo  = np.clip(yt_ax[idx] + 0.025 * np.random.randn(len(idx)), 0.05, 0.95)
 
     fig, ax = make_fig()
-    draw_tron_grid(ax)
 
     # dim true orbit (always visible, behind everything)
     ax.plot(xt_ax, yt_ax, color=DIM_RGB, lw=0.8, alpha=0.30,
@@ -619,7 +618,6 @@ def make_learning_gif():
         # re-draw observations on top of fill
         ax.scatter(xo, yo, s=7, color=HI_RGB, alpha=0.55, zorder=4,
                    linewidths=0)
-        add_scanline(ax, i)
 
     save_gif(fig, update, os.path.join(OUT, 'gif-physics-learning.gif'))
 
@@ -646,7 +644,6 @@ def make_nonlinear_gif():
     mag0_n = np.clip(mag0 / 5.0, 0, 1) * 0.75 + 0.05
 
     fig, ax = make_fig()
-    draw_tron_grid(ax)
 
     # faint linear reference
     ax.plot(f_norm, mag0_n, color=DIM_RGB, lw=1.0, alpha=0.35,
@@ -667,7 +664,6 @@ def make_nonlinear_gif():
             c_.remove()
         ax.fill_between(f_norm, 0.05, m_n,
                         alpha=0.11, color=CU, zorder=3)
-        add_scanline(ax, i)
 
     save_gif(fig, update, os.path.join(OUT, 'gif-nonlinear.gif'))
 
@@ -708,7 +704,6 @@ def make_diagnostics_gif():
     R = 0.042
 
     fig, ax = make_fig()
-    draw_tron_grid(ax)
 
     # pre-draw static edges
     edge_lines = []
@@ -788,7 +783,6 @@ def make_diagnostics_gif():
                 l.set_alpha(0.32)
                 l.set_linewidth(1.0)
 
-        add_scanline(ax, i)
 
     save_gif(fig, update, os.path.join(OUT, 'gif-diagnostics.gif'))
 
