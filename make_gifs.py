@@ -1,408 +1,425 @@
 """
-Generate four thematic GIFs for the research website.
-Each GIF is 420×280, dark background, copper accent colour to match the site palette.
+Thematic GIFs styled to match the website:
+  - Background  #0A0B10
+  - Tron grid   rgba(208,138,79, 0.06) fine / 0.14 major
+  - Vignette    radial dark overlay matching the hero CSS
+  - Scanline    horizontal copper sweep
+  - Copper      #D08A4F  |  Hi-text  #ECE7DC  |  Dim  #4A4C56
+  - No axes, no tick marks, no text labels
 """
 
 import numpy as np
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
-import matplotlib.animation as animation
-from matplotlib.patches import FancyArrowPatch, Circle
-import matplotlib.patheffects as pe
+import matplotlib.colors as mcolors
 from PIL import Image
 import io, os
 
-BG   = "#0A0B10"
-CU   = "#D08A4F"        # copper
-CU2  = "#B8743D"
-DIM  = "#4A4C56"
-HI   = "#ECE7DC"
-LO   = "rgba(236,231,220,0.4)"
-W, H = 420, 280
-DPI  = 90
-FRAMES = 48
-DELAY  = 60            # ms between frames
+# ── Palette (exact site values) ──────────────────────────────────────────────
+BG  = "#0A0B10"
+CU  = "#D08A4F"
+CU2 = "#B8743D"
+HI  = "#ECE7DC"
+DIM = "#4A4C56"
 
-OUT = os.path.dirname(os.path.abspath(__file__))
+CU_RGB  = np.array([208, 138,  79]) / 255
+BG_RGB  = np.array([ 10,  11,  16]) / 255
+DIM_RGB = np.array([ 74,  76,  86]) / 255
+HI_RGB  = np.array([236, 231, 220]) / 255
+
+W, H   = 420, 280      # pixel dimensions
+DPI    = 90
+FRAMES = 56
+DELAY  = 55            # ms per frame  (~18 fps)
+OUT    = os.path.dirname(os.path.abspath(__file__))
+
+
+# ── Shared background helpers ─────────────────────────────────────────────────
+
+def make_fig():
+    fig, ax = plt.subplots(figsize=(W / DPI, H / DPI))
+    fig.subplots_adjust(0, 0, 1, 1)          # zero margins
+    fig.patch.set_facecolor(BG)
+    ax.set_facecolor(BG)
+    ax.set_xlim(0, 1)
+    ax.set_ylim(0, 1)
+    ax.axis('off')
+    return fig, ax
+
+
+def draw_tron_grid(ax):
+    """Faint copper grid matching the site's tron-lines CSS."""
+    # fine grid every 54 px
+    for x in np.arange(0, W, 54) / W:
+        ax.axvline(x, color=CU_RGB, alpha=0.06, lw=0.5, zorder=1)
+    for y in np.arange(0, H, 54) / H:
+        ax.axhline(y, color=CU_RGB, alpha=0.06, lw=0.5, zorder=1)
+    # major accent every 4 cells (216 px)
+    for x in np.arange(0, W, 216) / W:
+        ax.axvline(x, color=CU_RGB, alpha=0.14, lw=0.7, zorder=1)
+    for y in np.arange(0, H, 216) / H:
+        ax.axhline(y, color=CU_RGB, alpha=0.14, lw=0.7, zorder=1)
+
+
+def make_vignette(W, H):
+    """
+    Matches CSS:
+      radial-gradient(ellipse 72% 72% at 50% 50%,
+        transparent 35%, rgba(10,11,16,0.78) 100%)
+    Returns an RGBA uint8 array (H, W, 4).
+    """
+    xn = np.linspace(0, 1, W)
+    yn = np.linspace(0, 1, H)
+    X, Y = np.meshgrid(xn, yn)
+    d = np.sqrt(((X - 0.5) / 0.72) ** 2 + ((Y - 0.5) / 0.72) ** 2)
+    alpha = np.clip((d - 0.35) / 0.65, 0, 1) * 0.78
+    rgba = np.zeros((H, W, 4), dtype=np.float32)
+    rgba[..., :3] = BG_RGB
+    rgba[..., 3]  = alpha
+    return rgba
+
+
+VIGNETTE = make_vignette(W, H)
+
+
+def add_vignette(ax):
+    ax.imshow(VIGNETTE, extent=(0, 1, 0, 1), aspect='auto',
+              zorder=15, interpolation='bilinear', origin='upper')
+
+
+def scanline_y(frame, n_frames=FRAMES):
+    """Y position (in axes coords 0-1, top→bottom) of the scan line."""
+    t = frame / n_frames
+    return 1.0 - t        # travels top to bottom
+
+
+def add_scanline(ax, frame):
+    y = scanline_y(frame)
+    # centre bright, fade to transparent at sides
+    ax.axhline(y, color=CU_RGB, alpha=0.22, lw=0.8, zorder=14,
+               solid_capstyle='butt')
+    # glow
+    ax.axhline(y, color=CU_RGB, alpha=0.06, lw=4.0, zorder=13)
 
 
 def save_gif(fig, update_fn, path, n=FRAMES):
-    """Render n frames and save as an optimised GIF."""
     frames = []
     for i in range(n):
         update_fn(i)
         buf = io.BytesIO()
         fig.savefig(buf, format='png', dpi=DPI,
-                    facecolor=fig.get_facecolor(), edgecolor='none')
+                    facecolor=BG, edgecolor='none')
         buf.seek(0)
-        frames.append(Image.open(buf).convert('P', palette=Image.ADAPTIVE, colors=128))
+        img = Image.open(buf).copy()
+        frames.append(img.convert('P', palette=Image.ADAPTIVE, colors=200))
     frames[0].save(
         path, save_all=True, append_images=frames[1:],
         loop=0, duration=DELAY, optimize=True
     )
     plt.close(fig)
-    print(f"  saved {path}")
+    print(f"  saved {os.path.basename(path)}")
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-# GIF 1 — Control of PDEs  (1-D wave equation driven to rest by boundary feedback)
+# GIF 1 — Control of PDEs  ·  1-D wave driven to rest by boundary feedback
 # ─────────────────────────────────────────────────────────────────────────────
 def make_pde_gif():
-    Nx = 120
-    x  = np.linspace(0, 1, Nx)
-    c  = 1.0
-    dx = x[1] - x[0]
-    dt = 0.85 * dx / c          # Courant number 0.85 — stable
+    Nx  = 140
+    x   = np.linspace(0, 1, Nx)
+    c   = 1.0
+    dx  = x[1] - x[0]
+    dt  = 0.82 * dx / c           # Courant-stable
+    r   = (c * dt / dx) ** 2
+    alpha = 0.20                   # boundary absorption
 
-    # initial Gaussian pluck
-    u  = 0.9 * np.exp(-((x - 0.35) ** 2) / 0.006)
+    u     = 0.78 * np.exp(-((x - 0.30) ** 2) / 0.008) \
+          + 0.38 * np.exp(-((x - 0.65) ** 2) / 0.005)
     u_prev = u.copy()
 
-    # boundary damping coefficient
-    alpha = 0.18
+    fig, ax = make_fig()
+    draw_tron_grid(ax)
 
-    fig, ax = plt.subplots(figsize=(W/DPI, H/DPI))
-    fig.patch.set_facecolor(BG)
-    ax.set_facecolor(BG)
-    ax.set_xlim(0, 1)
-    ax.set_ylim(-1.05, 1.05)
-    ax.axis('off')
+    # y-axis spans [-1, 1], mapped to [0.15, 0.85] in axes coords
+    def to_ax(u_vals):
+        return 0.15 + (u_vals + 1) * 0.35
 
-    # decorative grid lines
-    for yv in [-1, -0.5, 0, 0.5, 1]:
-        ax.axhline(yv, color=DIM, lw=0.4, alpha=0.3)
-    ax.axhline(0, color=DIM, lw=0.6, alpha=0.5)
+    # static baseline
+    ax.axhline(0.50, color=DIM_RGB, alpha=0.35, lw=0.6, zorder=2)
 
-    # x-axis line
-    ax.plot([0,1],[0,0], color=DIM, lw=0.8, alpha=0.4)
+    fill_art = [None]
+    line, = ax.plot(x, to_ax(u), color=CU, lw=2.0,
+                    solid_capstyle='round', zorder=5)
 
-    # label
-    ax.text(0.5, 0.93, "PDE  ·  Boundary Feedback Control",
-            transform=ax.transAxes, ha='center', va='top',
-            color=CU, fontsize=7, fontfamily='monospace', alpha=0.85)
-
-    line, = ax.plot(x, u, color=CU, lw=1.8, solid_capstyle='round')
-    fill  = ax.fill_between(x, 0, u, alpha=0.12, color=CU)
-
-    # energy readout
-    etxt = ax.text(0.97, 0.08, "", transform=ax.transAxes,
-                   ha='right', va='bottom', color=HI,
-                   fontsize=6.5, fontfamily='monospace')
+    add_vignette(ax)
+    scan_art = [None]
 
     state = {'u': u.copy(), 'up': u_prev.copy()}
 
     def update(i):
         u_  = state['u']
         up_ = state['up']
-        # leapfrog step (×3 sub-steps per frame for speed)
-        for _ in range(8):
+        for _ in range(6):
             u_new = np.zeros_like(u_)
             u_new[1:-1] = (2*u_[1:-1] - up_[1:-1]
-                           + r * (u_[2:] - 2*u_[1:-1] + u_[:-2]))
-            # absorbing boundary at both ends
+                           + r*(u_[2:] - 2*u_[1:-1] + u_[:-2]))
             u_new[0]  = u_new[1]  * (1 - alpha)
             u_new[-1] = u_new[-2] * (1 - alpha)
             up_[:] = u_[:]
             u_[:] = u_new
 
-        line.set_ydata(u_)
+        y_ax = to_ax(np.clip(u_, -1, 1))
+        line.set_ydata(y_ax)
 
-        # redraw fill (remove old, add new)
-        for coll in ax.collections[:]:
-            coll.remove()
-        ax.fill_between(x, 0, u_, alpha=0.12, color=CU)
+        # refresh fill (remove old, draw new below vignette)
+        for c_ in [a for a in ax.collections if a.zorder < 10]:
+            c_.remove()
+        ax.fill_between(x, 0.50, y_ax,
+                        where=(y_ax > 0.50),
+                        color=CU, alpha=0.10, zorder=3)
+        ax.fill_between(x, y_ax, 0.50,
+                        where=(y_ax < 0.50),
+                        color=CU, alpha=0.10, zorder=3)
 
-        energy = np.sqrt(np.mean(u_ ** 2))
-        etxt.set_text(f"E = {energy:.3f}")
+        # scanline (remove old, add new on top of vignette)
+        for a in ax.lines[2:]:           # keep baseline + wave line
+            pass
+        add_scanline(ax, i)
 
-    save_gif(fig, update, os.path.join(OUT, "gif-pde-control.gif"))
+    save_gif(fig, update, os.path.join(OUT, 'gif-pde-control.gif'))
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-# GIF 2 — Physics-Informed Learning  (surrogate fitting a nonlinear trajectory)
+# GIF 2 — Physics-Informed Learning  ·  surrogate converging on a nonlinear orbit
 # ─────────────────────────────────────────────────────────────────────────────
 def make_learning_gif():
-    np.random.seed(42)
-    T = np.linspace(0, 2 * np.pi, 120)
-    # "true" state trajectory (van-der-Pol-like limit cycle in state space)
-    x_true = np.sin(T)
-    y_true = np.cos(T) * (1 + 0.3 * np.sin(2 * T))
+    np.random.seed(7)
+    T = np.linspace(0, 2 * np.pi, 200)
+    # true orbit (limit-cycle-ish, in [-1,1])
+    xt = 0.72 * np.sin(T)
+    yt = 0.62 * np.cos(T) * (1 + 0.30 * np.sin(2 * T))
 
-    # noisy observations (sparse)
-    idx = np.arange(0, 120, 5)
-    xo = x_true[idx] + 0.07 * np.random.randn(len(idx))
-    yo = y_true[idx] + 0.07 * np.random.randn(len(idx))
+    # map to axes [0.08, 0.92]
+    def to_ax(v):  return 0.50 + v * 0.40
 
-    fig, ax = plt.subplots(figsize=(W/DPI, H/DPI))
-    fig.patch.set_facecolor(BG)
-    ax.set_facecolor(BG)
-    ax.set_xlim(-1.6, 1.6)
-    ax.set_ylim(-1.6, 1.6)
-    ax.axis('off')
+    xt_ax = to_ax(xt);  yt_ax = to_ax(yt)
 
-    for v in [-1, 0, 1]:
-        ax.axhline(v, color=DIM, lw=0.4, alpha=0.25)
-        ax.axvline(v, color=DIM, lw=0.4, alpha=0.25)
+    # sparse noisy observations
+    idx = np.arange(0, 200, 7)
+    xo  = np.clip(xt_ax[idx] + 0.025 * np.random.randn(len(idx)), 0.05, 0.95)
+    yo  = np.clip(yt_ax[idx] + 0.025 * np.random.randn(len(idx)), 0.05, 0.95)
 
-    ax.text(0.5, 0.96, "Physics-Informed  ·  Surrogate Modeling",
-            transform=ax.transAxes, ha='center', va='top',
-            color=CU, fontsize=7, fontfamily='monospace', alpha=0.85)
+    fig, ax = make_fig()
+    draw_tron_grid(ax)
 
-    # axis labels
-    ax.text(1.55, -0.07, "x₁", color=DIM, fontsize=7, ha='right')
-    ax.text(-0.07, 1.55, "x₂", color=DIM, fontsize=7, va='top')
+    # dim true orbit (always visible, behind everything)
+    ax.plot(xt_ax, yt_ax, color=DIM_RGB, lw=0.8, alpha=0.30,
+            linestyle='--', zorder=2)
 
-    # ghost true orbit (faint)
-    ax.plot(x_true, y_true, color=DIM, lw=0.8, alpha=0.25, linestyle='--')
+    # observations (static)
+    ax.scatter(xo, yo, s=7, color=HI_RGB, alpha=0.55, zorder=4,
+               linewidths=0)
 
-    # observations
-    ax.scatter(xo, yo, s=12, color=HI, alpha=0.55, zorder=5, linewidths=0)
+    surr_line, = ax.plot([], [], color=CU, lw=2.2, zorder=5,
+                         solid_capstyle='round')
 
-    # surrogate line (grows over frames)
-    surr_line, = ax.plot([], [], color=CU, lw=2.0, alpha=0.92, zorder=6)
-
-    # uncertainty band
-    band = ax.fill_between([], [], [], alpha=0.0, color=CU)
-
-    # "converging" label
-    ctxt = ax.text(0.03, 0.06, "", transform=ax.transAxes,
-                   ha='left', va='bottom', color=CU,
-                   fontsize=6.5, fontfamily='monospace')
+    add_vignette(ax)
 
     def update(i):
-        nonlocal band
-        # surrogate "learns" more of the orbit each frame
-        frac  = min(1.0, (i + 1) / (FRAMES * 0.75))
-        n_pts = max(2, int(len(T) * frac))
-        xs = x_true[:n_pts]
-        ys = y_true[:n_pts]
-        noise = (1 - frac) * 0.12
-        surr_line.set_data(xs + noise * np.random.randn(n_pts),
-                           ys + noise * np.random.randn(n_pts))
-        for c in ax.collections:
-            c.remove()
-        ax.scatter(xo, yo, s=12, color=HI, alpha=0.55, zorder=5, linewidths=0)
-        w = (1 - frac) * 0.18
-        ax.fill_between(xs, ys - w, ys + w, alpha=0.10, color=CU, zorder=3)
-        pct = int(frac * 100)
-        ctxt.set_text(f"fit  {pct:3d}%")
+        frac  = min(1.0, (i + 1) / (FRAMES * 0.80))
+        n_pts = max(3, int(len(T) * frac))
+        noise = (1 - frac) * 0.022
+        xs = xt_ax[:n_pts] + noise * np.random.randn(n_pts)
+        ys = yt_ax[:n_pts] + noise * np.random.randn(n_pts)
+        surr_line.set_data(xs, ys)
 
-    save_gif(fig, update, os.path.join(OUT, "gif-physics-learning.gif"))
+        for c_ in [a for a in ax.collections if a.zorder < 10]:
+            c_.remove()
+        # uncertainty band (shrinks as model converges)
+        w = (1 - frac) * 0.028
+        ax.fill_between(xs, ys - w, ys + w,
+                        alpha=0.12, color=CU, zorder=3)
+        # re-draw observations on top of fill
+        ax.scatter(xo, yo, s=7, color=HI_RGB, alpha=0.55, zorder=4,
+                   linewidths=0)
+        add_scanline(ax, i)
+
+    save_gif(fig, update, os.path.join(OUT, 'gif-physics-learning.gif'))
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-# GIF 3 — Nonlinear Performance Shaping  (amplitude-dependent Bode magnitude)
+# GIF 3 — Nonlinear Performance Shaping  ·  amplitude-dependent Bode
 # ─────────────────────────────────────────────────────────────────────────────
 def make_nonlinear_gif():
-    freqs  = np.logspace(-1, 1.5, 300)
-    amps   = np.linspace(0.05, 2.5, FRAMES)
+    # log-frequency axis, normalised to [0,1]
+    log_f  = np.linspace(-1, 1.5, 300)         # log10(freq)
+    f_norm = (log_f - (-1)) / (1.5 - (-1))     # → [0, 1] for axes x
 
-    def bode_mag(f, A):
-        # simple amplitude-dependent 2nd-order resonance
-        omega_n = 1.0 + 0.35 * A          # resonance shifts with amplitude
-        zeta    = 0.18 + 0.12 * A
-        den     = np.sqrt((1 - (f/omega_n)**2)**2 + (2*zeta*f/omega_n)**2)
-        return 1.0 / (den + 1e-9)
+    amps = np.linspace(0.05, 2.8, FRAMES)
 
-    fig, ax = plt.subplots(figsize=(W/DPI, H/DPI))
-    fig.patch.set_facecolor(BG)
-    ax.set_facecolor(BG)
-    ax.set_xscale('log')
-    ax.set_xlim(freqs[0], freqs[-1])
-    ax.set_ylim(-0.05, 4.2)
-    ax.axis('off')
+    def mag(log_f_, A):
+        f = 10 ** log_f_
+        omega_n = 1.0 + 0.38 * A
+        zeta    = 0.14 + 0.10 * A
+        s = f / omega_n
+        return 1.0 / np.sqrt((1 - s**2)**2 + (2*zeta*s)**2 + 1e-12)
 
-    # grid
-    for fv in [0.1, 0.3, 1, 3, 10, 30]:
-        ax.axvline(fv, color=DIM, lw=0.4, alpha=0.3)
-    for yv in [0, 1, 2, 3, 4]:
-        ax.axhline(yv, color=DIM, lw=0.4, alpha=0.3)
+    # linear (A→0) reference normalised to axes y
+    mag0   = mag(log_f, 0.02)
+    mag0_n = np.clip(mag0 / 5.0, 0, 1) * 0.75 + 0.05
 
-    ax.text(0.5, 0.96, "Nonlinear  ·  Amplitude-Dependent Bode",
-            transform=ax.transAxes, ha='center', va='top',
-            color=CU, fontsize=7, fontfamily='monospace', alpha=0.85)
+    fig, ax = make_fig()
+    draw_tron_grid(ax)
 
-    # frequency axis label
-    ax.text(0.5, 0.02, "frequency  (rad/s)", transform=ax.transAxes,
-            ha='center', va='bottom', color=DIM, fontsize=6.5)
+    # faint linear reference
+    ax.plot(f_norm, mag0_n, color=DIM_RGB, lw=1.0, alpha=0.35,
+            linestyle='--', zorder=2)
 
-    # ghost linear (A→0) response in dim copper
-    mag0 = bode_mag(freqs, 0.01)
-    ax.plot(freqs, mag0, color=DIM, lw=0.9, alpha=0.4, linestyle='--')
+    main_line, = ax.plot([], [], color=CU, lw=2.2, zorder=5,
+                         solid_capstyle='round')
 
-    main_line, = ax.plot([], [], color=CU, lw=2.2)
-    fill_band  = ax.fill_between([], [], [], alpha=0.0)
-
-    atxt = ax.text(0.97, 0.88, "", transform=ax.transAxes,
-                   ha='right', va='top', color=HI,
-                   fontsize=6.5, fontfamily='monospace')
+    add_vignette(ax)
 
     def update(i):
         A   = amps[i]
-        mag = bode_mag(freqs, A)
-        main_line.set_data(freqs, mag)
-        for c in ax.collections:
-            c.remove()
-        ax.fill_between(freqs, 0, mag, alpha=0.10, color=CU)
-        atxt.set_text(f"A = {A:.2f}")
+        m   = mag(log_f, A)
+        m_n = np.clip(m / 5.0, 0, 1) * 0.75 + 0.05
+        main_line.set_data(f_norm, m_n)
 
-    save_gif(fig, update, os.path.join(OUT, "gif-nonlinear.gif"))
+        for c_ in [a for a in ax.collections if a.zorder < 10]:
+            c_.remove()
+        ax.fill_between(f_norm, 0.05, m_n,
+                        alpha=0.11, color=CU, zorder=3)
+        add_scanline(ax, i)
+
+    save_gif(fig, update, os.path.join(OUT, 'gif-nonlinear.gif'))
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-# GIF 4 — System-Level Proactive Diagnostics  (fault propagation & detection)
+# GIF 4 — System-Level Diagnostics  ·  fault propagation & detection
 # ─────────────────────────────────────────────────────────────────────────────
 def make_diagnostics_gif():
-    # Fixed node positions for a small industrial network
+    # node positions in axes coords
     nodes = np.array([
-        [0.50, 0.82],   # 0 — controller hub
-        [0.20, 0.55],   # 1
-        [0.50, 0.55],   # 2
-        [0.80, 0.55],   # 3
-        [0.12, 0.26],   # 4 — ← fault origin
-        [0.38, 0.26],   # 5
-        [0.62, 0.26],   # 6
-        [0.88, 0.26],   # 7
+        [0.50, 0.84],   # 0 — hub
+        [0.24, 0.58],   # 1
+        [0.50, 0.58],   # 2
+        [0.76, 0.58],   # 3
+        [0.13, 0.26],   # 4  ← fault origin
+        [0.37, 0.26],   # 5
+        [0.63, 0.26],   # 6
+        [0.87, 0.26],   # 7
     ])
     edges = [(0,1),(0,2),(0,3),(1,4),(1,5),(2,5),(2,6),(3,6),(3,7)]
 
     # BFS distance from fault node 4
     from collections import deque
     dist = {4: 0}
-    q = deque([4])
-    adj = {i: [] for i in range(8)}
+    adj  = {i: [] for i in range(8)}
     for a, b in edges:
         adj[a].append(b); adj[b].append(a)
+    q = deque([4])
     while q:
         v = q.popleft()
         for u in adj[v]:
             if u not in dist:
                 dist[u] = dist[v] + 1
                 q.append(u)
-    max_dist = max(dist.values())
+    max_d = max(dist.values())
 
-    fig, ax = plt.subplots(figsize=(W/DPI, H/DPI))
-    fig.patch.set_facecolor(BG)
-    ax.set_facecolor(BG)
-    ax.set_xlim(0, 1); ax.set_ylim(0.1, 1.0)
-    ax.axis('off')
+    # node radius in axes coords
+    R = 0.042
 
-    ax.text(0.5, 0.97, "System-Level  ·  Proactive Fault Diagnostics",
-            transform=ax.transAxes, ha='center', va='top',
-            color=CU, fontsize=7, fontfamily='monospace', alpha=0.85)
+    fig, ax = make_fig()
+    draw_tron_grid(ax)
 
-    labels = ["Hub", "N1", "N2", "N3", "F", "N5", "N6", "N7"]
-    node_labels_art = []
-    edge_arts = []
-
-    # draw edges (static)
+    # pre-draw static edges
+    edge_lines = []
     for a, b in edges:
         l, = ax.plot([nodes[a,0], nodes[b,0]],
                      [nodes[a,1], nodes[b,1]],
-                     color=DIM, lw=1.0, alpha=0.4, zorder=1)
-        edge_arts.append((a, b, l))
+                     color=DIM_RGB, lw=1.0, alpha=0.35, zorder=2)
+        edge_lines.append(l)
 
-    # draw nodes
-    node_circles = []
-    for i, (nx_, ny_) in enumerate(nodes):
-        circ = Circle((nx_, ny_), 0.055, color=DIM, zorder=3,
-                       transform=ax.transData)
+    # node patches
+    from matplotlib.patches import Circle
+    circles = []
+    for i, (nx, ny) in enumerate(nodes):
+        circ = Circle((nx, ny), R, facecolor=DIM, edgecolor='none',
+                      linewidth=0, zorder=5, transform=ax.transData)
         ax.add_patch(circ)
-        node_circles.append(circ)
-        txt = ax.text(nx_, ny_, labels[i], ha='center', va='center',
-                      fontsize=6.5, fontfamily='monospace', color=BG,
-                      fontweight='bold', zorder=4)
-        node_labels_art.append(txt)
+        circles.append(circ)
 
-    status_txt = ax.text(0.5, 0.05, "", transform=ax.transAxes,
-                         ha='center', va='bottom', color=CU,
-                         fontsize=6.5, fontfamily='monospace')
+    add_vignette(ax)
 
-    # animation phases:
-    # 0..11   : idle (all nodes normal)
-    # 12..19  : fault appears at node 4
-    # 20..35  : propagates outward
-    # 36..47  : detection alert, hub highlighted
-
+    # phases: 0-10 idle | 11-20 fault appears | 21-38 propagates | 39+ detect
     def update(i):
-        phase_idle  = i < 12
-        phase_fault = 12 <= i < 20
-        phase_prop  = 20 <= i < 36
-        phase_det   = i >= 36
+        idle  = i < 11
+        fault = 11 <= i < 21
+        prop  = 21 <= i < 39
+        det   = i >= 39
 
-        t_prop = max(0, (i - 20) / 16)   # 0→1 over propagation phase
+        t_prop = max(0, (i - 21) / 18.0)
 
         for ni in range(8):
             d = dist.get(ni, 99)
-            if phase_idle:
-                node_circles[ni].set_facecolor(DIM)
-                node_circles[ni].set_edgecolor('none')
-                node_circles[ni].set_linewidth(0)
-            elif phase_fault and ni == 4:
-                blink = 0.5 + 0.5 * np.sin(i * 1.8)
-                node_circles[ni].set_facecolor(
-                    plt.matplotlib.colors.to_rgba(CU, blink))
-                node_circles[ni].set_edgecolor(CU)
-                node_circles[ni].set_linewidth(1.5)
-            elif (phase_prop or phase_det):
-                # fault wave reaches node when t_prop > d/max_dist
-                reached = t_prop > d / (max_dist + 0.5)
+
+            if idle:
+                circles[ni].set_facecolor(DIM)
+                circles[ni].set_edgecolor('none')
+                circles[ni].set_linewidth(0)
+            elif fault:
                 if ni == 4:
-                    node_circles[ni].set_facecolor(CU)
-                    node_circles[ni].set_edgecolor(CU2)
-                    node_circles[ni].set_linewidth(1.5)
-                elif reached and phase_det and ni == 0:
-                    # hub detects — flash alert
-                    blink = 0.5 + 0.5 * np.sin(i * 2.5)
-                    node_circles[ni].set_facecolor(
-                        plt.matplotlib.colors.to_rgba("#E8C45A", blink))
-                    node_circles[ni].set_edgecolor("#E8C45A")
-                    node_circles[ni].set_linewidth(2.0)
-                elif reached:
-                    node_circles[ni].set_facecolor(CU2)
-                    node_circles[ni].set_edgecolor(CU)
-                    node_circles[ni].set_linewidth(1.0)
+                    blink = 0.55 + 0.45 * np.sin(i * 1.6)
+                    circles[ni].set_facecolor(
+                        mcolors.to_rgba(CU, blink))
+                    circles[ni].set_edgecolor(CU)
+                    circles[ni].set_linewidth(1.5)
                 else:
-                    node_circles[ni].set_facecolor(DIM)
-                    node_circles[ni].set_edgecolor('none')
-                    node_circles[ni].set_linewidth(0)
+                    circles[ni].set_facecolor(DIM)
+                    circles[ni].set_edgecolor('none')
+            elif prop or det:
+                reached = t_prop > d / (max_d + 0.6)
+                if ni == 4:
+                    circles[ni].set_facecolor(CU)
+                    circles[ni].set_edgecolor(CU2)
+                    circles[ni].set_linewidth(1.5)
+                elif ni == 0 and det:
+                    # hub alert — warm yellow flash
+                    blink = 0.55 + 0.45 * np.sin(i * 2.2)
+                    circles[ni].set_facecolor(
+                        mcolors.to_rgba("#E8C45A", blink))
+                    circles[ni].set_edgecolor("#E8C45A")
+                    circles[ni].set_linewidth(2.0)
+                elif reached:
+                    circles[ni].set_facecolor(CU2)
+                    circles[ni].set_edgecolor(CU)
+                    circles[ni].set_linewidth(1.0)
+                else:
+                    circles[ni].set_facecolor(DIM)
+                    circles[ni].set_edgecolor('none')
+                    circles[ni].set_linewidth(0)
+
+        for (a, b), l in zip(edges, edge_lines):
+            d_edge = min(dist.get(a,99), dist.get(b,99))
+            if (prop or det) and t_prop > d_edge / (max_d + 0.6):
+                l.set_color(CU_RGB)
+                l.set_alpha(0.65)
+                l.set_linewidth(1.3)
             else:
-                node_circles[ni].set_facecolor(DIM)
-                node_circles[ni].set_edgecolor('none')
-                node_circles[ni].set_linewidth(0)
+                l.set_color(DIM_RGB)
+                l.set_alpha(0.32)
+                l.set_linewidth(1.0)
 
-        # edge colours follow fault wave
-        for a, b, l in edge_arts:
-            da, db = dist.get(a,99), dist.get(b,99)
-            d_edge = min(da, db)
-            if phase_prop or phase_det:
-                reached = t_prop > d_edge / (max_dist + 0.5)
-                l.set_color(CU if reached else DIM)
-                l.set_alpha(0.75 if reached else 0.35)
-            else:
-                l.set_color(DIM); l.set_alpha(0.4)
+        add_scanline(ax, i)
 
-        if phase_idle:
-            status_txt.set_text("monitoring . . .")
-            status_txt.set_color(DIM)
-        elif phase_fault:
-            status_txt.set_text("⚠  anomaly detected at N4")
-            status_txt.set_color(CU)
-        elif phase_prop:
-            status_txt.set_text("propagation mapping . . .")
-            status_txt.set_color(CU)
-        elif phase_det:
-            status_txt.set_text("✓  fault isolated  —  rerouting")
-            status_txt.set_color("#E8C45A")
-
-    save_gif(fig, update, os.path.join(OUT, "gif-diagnostics.gif"))
+    save_gif(fig, update, os.path.join(OUT, 'gif-diagnostics.gif'))
 
 
-if __name__ == "__main__":
-    print("Generating GIFs …")
+if __name__ == '__main__':
+    print('Generating GIFs …')
     make_pde_gif()
     make_learning_gif()
     make_nonlinear_gif()
     make_diagnostics_gif()
-    print("Done.")
+    print('Done.')
