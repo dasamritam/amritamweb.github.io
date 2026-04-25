@@ -211,7 +211,8 @@ def make_pde_gif():
     ax.set_ylim(0.04, 0.96)
     ax.view_init(elev=38, azim=45)
 
-    surf_h = [None]
+    surf_h       = [None]
+    contour_arts = []
     t_phys = [0.0]
     state  = {'u': u.copy(), 'up': u_prev.copy()}
 
@@ -260,6 +261,12 @@ def make_pde_gif():
         Z_plot = (u_display * circ_window).astype(float)
         Z_plot[circ_mask] = np.nan
 
+        # Remove previous contour lines
+        for line in contour_arts:
+            try: line.remove()
+            except: pass
+        contour_arts.clear()
+
         if surf_h[0] is not None:
             surf_h[0].remove()
 
@@ -269,6 +276,35 @@ def make_pde_gif():
             rcount=130, ccount=130,
             linewidth=0, antialiased=True,
         )
+
+        # ── Outer contour: single connected four-lobe outline ────────────────
+        # Split compound paths at MOVETO codes → keep only the longest loop
+        # (outer boundary); discards inner hole and seam segment.
+        if alpha > 0.45:
+            from matplotlib.path import Path as MplPath
+            fig_tmp, ax_tmp = plt.subplots()
+            cs = ax_tmp.contour(X, Y, G_anim * alpha, levels=[0.050])
+            all_loops = []
+            for coll in cs.collections:
+                for path in coll.get_paths():
+                    verts, codes = path.vertices, path.codes
+                    if codes is None:
+                        all_loops.append(verts.copy())
+                    else:
+                        cuts = [0] + [k for k in range(1, len(codes))
+                                      if codes[k] == MplPath.MOVETO]
+                        cuts.append(len(codes))
+                        for a, b in zip(cuts, cuts[1:]):
+                            seg = verts[a:b]
+                            if len(seg) > 3:
+                                all_loops.append(seg.copy())
+            plt.close(fig_tmp)
+            if all_loops:
+                outer = max(all_loops, key=lambda v: len(v))
+                contour_arts.extend(
+                    ax.plot(outer[:, 0], outer[:, 1], 0.02,
+                            color='#1a0a04', linewidth=2.2, zorder=6)
+                )
 
     save_gif(fig, update, os.path.join(OUT, 'gif-pde-control.gif'), n=80)
 
