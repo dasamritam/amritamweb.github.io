@@ -341,10 +341,13 @@
       overflow: hidden;
     }
     .t-node.right .t-card { left: auto; right: 0; }
+    /* Bottom nodes: card opens upward so it stays in the viewport */
+    .t-node.bottom .t-card { top: auto; bottom: calc(100% + 0.8rem); transform: translateY(-6px) scale(0.98); }
+    .t-node.bottom:hover .t-card { transform: none; }
     .t-node:hover .t-card { opacity: 1; transform: none; pointer-events: auto; }
 
     .t-card-img {
-      width: 100%; height: 180px;
+      width: 100%; height: 155px;
       object-fit: contain;
       background: var(--dark);
       filter: brightness(0.80) saturate(0.9);
@@ -1155,7 +1158,7 @@
   </div>
 
   <!-- Node 02: Physics-Informed Learning (lower-left) top:62%; left:14%-->
-  <div class="t-node" style="top:65%; left:11%;" data-target="#physics-learning">
+  <div class="t-node bottom" style="top:65%; left:11%;" data-target="#physics-learning">
     <div class="t-node-inner">
       <span class="t-node-label">Physics-Informed<br>surrogate modeling</span>
       <div class="t-node-dot"></div>
@@ -1193,7 +1196,7 @@
   </div>
 
   <!-- Node 04: Real-World Applications (lower-right) -->
-  <div class="t-node right" style="top:65%; right:11%;" data-target="#applications">
+  <div class="t-node right bottom" style="top:65%; right:11%;" data-target="#applications">
     <div class="t-node-inner">
       <span class="t-node-label">System-level <br>proactive diagnostics</span>
       <div class="t-node-dot"></div>
