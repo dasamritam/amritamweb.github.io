@@ -133,24 +133,32 @@ def save_gif(
 def pdf_to_gif(
     pdf_path: str,
     gif_path: str,
-    width: int     = 260,
-    height: int    = 110,
-    fps: int       = 15,
-    duration: float = 8.0,
-    dpi: int       = 100,
-    max_pages: Optional[int] = 5,
-    gap: int       = 6,
-    colors: int    = 64,
+    width: int               = 260,
+    height: int              = 110,
+    fps: int                 = 12,
+    duration: Optional[float] = None,   # None → auto: 1.5 s/page, min 8 s
+    dpi: int                 = 80,
+    max_pages: Optional[int] = None,    # None → all pages
+    gap: int                 = 6,
+    colors: int              = 48,
 ) -> None:
-    """Convert *pdf_path* to a scrolling preview GIF saved at *gif_path*."""
+    """Convert *pdf_path* to a scrolling preview GIF saved at *gif_path*.
+
+    With duration=None the scroll speed is ~1.5 s per page so short and
+    long papers both feel natural. Pass an explicit value to override.
+    """
     print(f"  ↳ rendering {pdf_path} …")
-    pages  = render_pages(pdf_path, dpi=dpi, max_pages=max_pages)
-    full   = stitch(pages, target_w=width, gap=gap)
-    frames = make_frames(full, viewport_h=height, fps=fps, duration=duration)
+    pages = render_pages(pdf_path, dpi=dpi, max_pages=max_pages)
+    full  = stitch(pages, target_w=width, gap=gap)
+
+    # auto duration: 1.5 s per page, minimum 8 s
+    dur = duration if duration is not None else max(8.0, len(pages) * 1.5)
+
+    frames = make_frames(full, viewport_h=height, fps=fps, duration=dur)
     Path(gif_path).parent.mkdir(parents=True, exist_ok=True)
     save_gif(frames, gif_path, fps=fps, colors=colors)
     size_kb = Path(gif_path).stat().st_size // 1024
-    print(f"    saved {gif_path}  ({len(frames)} frames, {size_kb} KB)")
+    print(f"    saved {gif_path}  ({len(pages)} pages, {dur:.0f}s, {len(frames)} frames, {size_kb} KB)")
 
 
 # ── CLI ───────────────────────────────────────────────────────────────────────
@@ -166,12 +174,14 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--batch",    action="store_true", help="Process all PDFs in src/ → dst/")
     p.add_argument("--width",    type=int,   default=260,  metavar="px")
     p.add_argument("--height",   type=int,   default=110,  metavar="px")
-    p.add_argument("--fps",      type=int,   default=15)
-    p.add_argument("--duration", type=float, default=8.0,  metavar="sec")
-    p.add_argument("--dpi",      type=int,   default=100)
-    p.add_argument("--pages",    type=int,   default=5,    metavar="N", dest="max_pages")
+    p.add_argument("--fps",      type=int,   default=12)
+    p.add_argument("--duration", type=float, default=None, metavar="sec",
+                   help="scroll duration in seconds (default: auto 1.5s/page)")
+    p.add_argument("--dpi",      type=int,   default=80)
+    p.add_argument("--pages",    type=int,   default=None, metavar="N", dest="max_pages",
+                   help="max pages to include (default: all)")
     p.add_argument("--gap",      type=int,   default=6,    metavar="px")
-    p.add_argument("--colors",   type=int,   default=64)
+    p.add_argument("--colors",   type=int,   default=48)
     return p
 
 
