@@ -812,85 +812,54 @@
     .partner-paper-btn:hover { gap: 0.62rem; color: #6B3414; }
 
     /* ── paper preview popup ───────────────────────────────────────── */
+    /* paper preview popup — matches hero t-card dark style */
     .paper-preview-card {
       position: absolute;
       bottom: calc(100% + 0.85rem);
       left: 0;
-      width: 252px;
-      background: #fff;
-      border: 1px solid rgba(139,74,28,0.16);
-      box-shadow: 0 16px 44px rgba(0,0,0,0.14), 0 2px 8px rgba(0,0,0,0.06);
+      width: 270px;
+      background: var(--dark-card);
+      border: 1px solid rgba(208,138,79,0.2);
+      backdrop-filter: blur(20px);
       opacity: 0;
-      transform: translateY(10px) scale(0.97);
+      transform: translateY(6px) scale(0.98);
       pointer-events: none;
-      transition: opacity 0.24s ease, transform 0.24s ease;
+      transition: opacity 0.28s ease, transform 0.28s ease;
       z-index: 100;
       overflow: hidden;
       cursor: pointer;
-      /* explicit resets — no <a> parent to inherit from */
-      font-family: var(--sans);
-      font-size: 0.78rem;
-      font-weight: 400;
-      font-style: normal;
-      text-transform: none;
-      letter-spacing: normal;
-      text-decoration: none;
-      color: #181A22;
     }
     .paper-preview-card.ppc-visible {
       opacity: 1;
-      transform: translateY(0) scale(1);
+      transform: none;
       pointer-events: auto;
     }
-    .ppc-venue {
-      background: rgba(139,74,28,0.07);
-      border-bottom: 1px solid rgba(139,74,28,0.12);
-      padding: 0.38rem 0.85rem;
-      font-family: var(--mono);
-      font-size: 0.52rem;
-      letter-spacing: 0.15em;
-      text-transform: uppercase;
-      color: #8B4A1C;
-    }
-    .ppc-title {
-      padding: 0.55rem 0.85rem 0.2rem;
-      font-family: var(--display);
-      font-weight: 600;
-      font-size: 0.72rem;
-      line-height: 1.35;
-      color: #181A22;
-    }
-    .ppc-authors {
-      padding: 0 0.85rem 0.5rem;
-      font-size: 0.6rem;
-      line-height: 1.5;
-      color: #4A4C56;
-    }
+    /* scrolling abstract section */
     .ppc-body {
       position: relative;
-      height: 90px;
+      height: 80px;
       overflow: hidden;
-      border-top: 1px solid rgba(0,0,0,0.06);
+      border-top: 1px solid rgba(208,138,79,0.12);
     }
     .ppc-body::after {
       content: '';
       position: absolute;
       bottom: 0; left: 0; right: 0;
-      height: 32px;
-      background: linear-gradient(transparent, #fff);
+      height: 30px;
+      background: linear-gradient(transparent, var(--dark-card));
       pointer-events: none;
       z-index: 1;
     }
     .ppc-scroll {
       display: block;
-      padding: 0.55rem 0.85rem 0;
+      padding: 0.5rem 1.2rem 0;
       animation: ppc-scroll 12s linear infinite;
     }
     .ppc-abstract {
       font-family: var(--sans);
-      font-size: 0.63rem;
+      font-size: 0.62rem;
       line-height: 1.65;
-      color: #4A4C56;
+      color: rgba(236,231,220,0.5);
       padding-bottom: 1rem;
     }
     @keyframes ppc-scroll {
@@ -1687,13 +1656,16 @@
           <div class="partner-paper-wrap" data-href="https://arxiv.org/abs/2208.13104">
             <a class="partner-paper-btn" href="https://arxiv.org/abs/2208.13104" target="_blank" rel="noopener">Read paper →</a>
             <div class="paper-preview-card">
-              <div class="ppc-venue">IEEE TAC · 2026</div>
-              <div class="ppc-title">Dual Representations and H∞-Optimal Control of Partial Differential Equations</div>
-              <div class="ppc-authors">Shivakumar, Das, Peet</div>
-              <div class="ppc-body"><div class="ppc-scroll">
-                <div class="ppc-abstract">We consider H∞-optimal state-feedback control of linear Partial Differential Equations (PDEs) admitting a Partial Integral Equation (PIE) representation. We show that any PIE system admits a dual PIE with identical stability and I/O properties — resolving the bilinearity in controller synthesis. This allows reformulation as convex optimisation over positive Partial Integral operators, yielding feedback gains for the original PDE system. Results are verified on canonical PDE control benchmarks with non-conservative H∞ norm bounds.</div>
-                <div class="ppc-abstract">We consider H∞-optimal state-feedback control of linear Partial Differential Equations (PDEs) admitting a Partial Integral Equation (PIE) representation. We show that any PIE system admits a dual PIE with identical stability and I/O properties — resolving the bilinearity in controller synthesis. This allows reformulation as convex optimisation over positive Partial Integral operators, yielding feedback gains for the original PDE system. Results are verified on canonical PDE control benchmarks with non-conservative H∞ norm bounds.</div>
-              </div></div>
+              <div class="t-card-body">
+                <div class="t-card-tag">Algorithms on infinite dimension</div>
+                <ul class="t-card-papers">
+                  <li>Dual Representations &amp; H∞-Optimal Control of PDEs <span class="t-card-venue">IEEE TAC 2026</span></li>
+                </ul>
+                <div class="ppc-body"><div class="ppc-scroll">
+                  <div class="ppc-abstract">We consider H∞-optimal state-feedback control of linear Partial Differential Equations (PDEs) admitting a Partial Integral Equation (PIE) representation. We show that any PIE system admits a dual PIE with identical stability and I/O properties — resolving the bilinearity in controller synthesis. This allows reformulation as convex optimisation over positive Partial Integral operators, yielding feedback gains for the original PDE system. Results are verified on canonical PDE control benchmarks with non-conservative H∞ norm bounds.</div>
+                  <div class="ppc-abstract">We consider H∞-optimal state-feedback control of linear Partial Differential Equations (PDEs) admitting a Partial Integral Equation (PIE) representation. We show that any PIE system admits a dual PIE with identical stability and I/O properties — resolving the bilinearity in controller synthesis. This allows reformulation as convex optimisation over positive Partial Integral operators, yielding feedback gains for the original PDE system. Results are verified on canonical PDE control benchmarks with non-conservative H∞ norm bounds.</div>
+                </div></div>
+              </div>
             </div>
           </div>
         </div>
@@ -1711,13 +1683,16 @@
           <div class="partner-paper-wrap" data-href="https://arxiv.org/abs/2511.03379">
             <a class="partner-paper-btn" href="https://arxiv.org/abs/2511.03379" target="_blank" rel="noopener">Read paper →</a>
             <div class="paper-preview-card">
-              <div class="ppc-venue">arXiv · 2025</div>
-              <div class="ppc-title">A Digital Twin of Evaporative Thermo-Fluidic Process in Fixation Unit of DoD Inkjet Printers</div>
-              <div class="ppc-authors">Toolhally, Roelofs, Weiland, Das</div>
-              <div class="ppc-body"><div class="ppc-scroll">
-                <div class="ppc-abstract">In inkjet printing, optimal paper moisture is crucial for print quality, maintained through hot-air impingement in the fixation unit. This paper presents a modular digital twin of the fixation unit, modelling the thermo-fluidic drying process and monitoring its spatio-temporal performance. The digital twin is formulated as an infinite-dimensional H∞-optimal state estimator that infers fixation states from limited sensor data, remaining robust to disturbances. Validated with operational data from a commercial printer.</div>
-                <div class="ppc-abstract">In inkjet printing, optimal paper moisture is crucial for print quality, maintained through hot-air impingement in the fixation unit. This paper presents a modular digital twin of the fixation unit, modelling the thermo-fluidic drying process and monitoring its spatio-temporal performance. The digital twin is formulated as an infinite-dimensional H∞-optimal state estimator that infers fixation states from limited sensor data, remaining robust to disturbances. Validated with operational data from a commercial printer.</div>
-              </div></div>
+              <div class="t-card-body">
+                <div class="t-card-tag">Digital twin for inkjet printing</div>
+                <ul class="t-card-papers">
+                  <li>Digital Twin of Evaporative Thermo-Fluidic Process in DoD Inkjet Printers <span class="t-card-venue">arXiv 2025</span></li>
+                </ul>
+                <div class="ppc-body"><div class="ppc-scroll">
+                  <div class="ppc-abstract">In inkjet printing, optimal paper moisture is crucial for print quality, maintained through hot-air impingement in the fixation unit. This paper presents a modular digital twin of the fixation unit, modelling the thermo-fluidic drying process and monitoring its spatio-temporal performance. The digital twin is formulated as an infinite-dimensional H∞-optimal state estimator that infers fixation states from limited sensor data, remaining robust to disturbances. Validated with operational data from a commercial printer.</div>
+                  <div class="ppc-abstract">In inkjet printing, optimal paper moisture is crucial for print quality, maintained through hot-air impingement in the fixation unit. This paper presents a modular digital twin of the fixation unit, modelling the thermo-fluidic drying process and monitoring its spatio-temporal performance. The digital twin is formulated as an infinite-dimensional H∞-optimal state estimator that infers fixation states from limited sensor data, remaining robust to disturbances. Validated with operational data from a commercial printer.</div>
+                </div></div>
+              </div>
             </div>
           </div>
         </div>
@@ -1737,13 +1712,16 @@
           <div class="partner-paper-wrap" data-href="https://arxiv.org/abs/2602.13009">
             <a class="partner-paper-btn" href="https://arxiv.org/abs/2602.13009" target="_blank" rel="noopener">Read paper →</a>
             <div class="paper-preview-card">
-              <div class="ppc-venue">arXiv · 2026</div>
-              <div class="ppc-title">Bayesian Optimization Based Grid Point Allocation for LPV and Robust Control</div>
-              <div class="ppc-authors">Olucha, Sadeghzadeh, Das, Tóth</div>
-              <div class="ppc-body"><div class="ppc-scroll">
-                <div class="ppc-abstract">This paper investigates systematic optimal grid point selection for grid-based Linear Parameter-Varying (LPV) and robust controller synthesis. Bayesian optimisation discovers the most informative scheduling points governing closed-loop performance of the LPV or robust controller across the complete system. When local model evaluations are costly, the method minimises the number of evaluations and adjusts to the available budget. Demonstrated on an unbalanced disk, a satellite with flexible solar arrays, and a robotic arm.</div>
-                <div class="ppc-abstract">This paper investigates systematic optimal grid point selection for grid-based Linear Parameter-Varying (LPV) and robust controller synthesis. Bayesian optimisation discovers the most informative scheduling points governing closed-loop performance of the LPV or robust controller across the complete system. When local model evaluations are costly, the method minimises the number of evaluations and adjusts to the available budget. Demonstrated on an unbalanced disk, a satellite with flexible solar arrays, and a robotic arm.</div>
-              </div></div>
+              <div class="t-card-body">
+                <div class="t-card-tag">LPV &amp; robust control for aerospace</div>
+                <ul class="t-card-papers">
+                  <li>Bayesian Optimization Based Grid Point Allocation for LPV and Robust Control <span class="t-card-venue">arXiv 2026</span></li>
+                </ul>
+                <div class="ppc-body"><div class="ppc-scroll">
+                  <div class="ppc-abstract">This paper investigates systematic optimal grid point selection for grid-based Linear Parameter-Varying (LPV) and robust controller synthesis. Bayesian optimisation discovers the most informative scheduling points governing closed-loop performance of the LPV or robust controller across the complete system. When local model evaluations are costly, the method minimises the number of evaluations and adjusts to the available budget. Demonstrated on an unbalanced disk, a satellite with flexible solar arrays, and a robotic arm.</div>
+                  <div class="ppc-abstract">This paper investigates systematic optimal grid point selection for grid-based Linear Parameter-Varying (LPV) and robust controller synthesis. Bayesian optimisation discovers the most informative scheduling points governing closed-loop performance of the LPV or robust controller across the complete system. When local model evaluations are costly, the method minimises the number of evaluations and adjusts to the available budget. Demonstrated on an unbalanced disk, a satellite with flexible solar arrays, and a robotic arm.</div>
+                </div></div>
+              </div>
             </div>
           </div>
         </div>
