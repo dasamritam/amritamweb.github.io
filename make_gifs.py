@@ -371,7 +371,7 @@ def make_control_diagram_gif():
     ax_d.axis('off')
 
     # Right: mini 3-D surface (62 % of width — larger)
-    ax_s = fig.add_axes([0.37, 0.04, 0.63, 0.92], projection='3d')
+    ax_s = fig.add_axes([0.37, 0.0, 0.63, 1.0], projection='3d')
     ax_s.set_facecolor(BG); ax_s.set_axis_off()
     for axis in (ax_s.xaxis, ax_s.yaxis, ax_s.zaxis):
         axis.pane.fill = False; axis.pane.set_visible(False)
@@ -577,7 +577,7 @@ def make_learning_gif():
     yt = 0.62 * np.cos(T) * (1 + 0.30 * np.sin(2 * T))
 
     # map to axes [0.08, 0.92]
-    def to_ax(v):  return 0.50 + v * 0.40
+    def to_ax(v):  return 0.50 + v * 0.53
 
     xt_ax = to_ax(xt);  yt_ax = to_ax(yt)
 
@@ -640,8 +640,9 @@ def make_nonlinear_gif():
         return 1.0 / np.sqrt((1 - s**2)**2 + (2*zeta*s)**2 + 1e-12)
 
     # linear (A→0) reference normalised to axes y
-    mag0   = mag(log_f, 0.02)
-    mag0_n = np.clip(mag0 / 5.0, 0, 1) * 0.75 + 0.05
+    mag0     = mag(log_f, 0.02)
+    max_mag  = mag0.max()
+    mag0_n   = np.clip(mag0 / max_mag, 0, 1) * 0.86 + 0.07
 
     fig, ax = make_fig()
 
@@ -657,7 +658,7 @@ def make_nonlinear_gif():
     def update(i):
         A   = amps[i]
         m   = mag(log_f, A)
-        m_n = np.clip(m / 5.0, 0, 1) * 0.75 + 0.05
+        m_n = np.clip(m / max_mag, 0, 1) * 0.86 + 0.07
         main_line.set_data(f_norm, m_n)
 
         for c_ in [a for a in ax.collections if a.zorder < 10]:
@@ -674,14 +675,14 @@ def make_nonlinear_gif():
 def make_diagnostics_gif():
     # node positions in axes coords
     nodes = np.array([
-        [0.50, 0.84],   # 0 — hub
-        [0.24, 0.58],   # 1
-        [0.50, 0.58],   # 2
-        [0.76, 0.58],   # 3
-        [0.13, 0.26],   # 4  ← fault origin
-        [0.37, 0.26],   # 5
-        [0.63, 0.26],   # 6
-        [0.87, 0.26],   # 7
+        [0.50, 0.90],   # 0 — hub
+        [0.20, 0.55],   # 1
+        [0.50, 0.55],   # 2
+        [0.80, 0.55],   # 3
+        [0.08, 0.12],   # 4  ← fault origin
+        [0.35, 0.12],   # 5
+        [0.65, 0.12],   # 6
+        [0.92, 0.12],   # 7
     ])
     edges = [(0,1),(0,2),(0,3),(1,4),(1,5),(2,5),(2,6),(3,6),(3,7)]
 
@@ -790,6 +791,7 @@ def make_diagnostics_gif():
 if __name__ == '__main__':
     print('Generating GIFs …')
     make_pde_gif()
+    make_control_diagram_gif()
     make_learning_gif()
     make_nonlinear_gif()
     make_diagnostics_gif()
