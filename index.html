@@ -798,7 +798,6 @@
       margin-top: 0.6rem;
     }
     .partner-paper-btn {
-      position: relative;
       display: inline-flex;
       align-items: center;
       gap: 0.38rem;
@@ -823,14 +822,25 @@
       box-shadow: 0 16px 44px rgba(0,0,0,0.14), 0 2px 8px rgba(0,0,0,0.06);
       opacity: 0;
       transform: translateY(10px) scale(0.97);
+      pointer-events: none;
       transition: opacity 0.24s ease, transform 0.24s ease;
       z-index: 100;
       overflow: hidden;
+      cursor: pointer;
+      /* explicit resets — no <a> parent to inherit from */
+      font-family: var(--sans);
+      font-size: 0.78rem;
+      font-weight: 400;
+      font-style: normal;
+      text-transform: none;
+      letter-spacing: normal;
+      text-decoration: none;
       color: #181A22;
     }
-    .partner-paper-btn:hover .paper-preview-card {
+    .paper-preview-card.ppc-visible {
       opacity: 1;
       transform: translateY(0) scale(1);
+      pointer-events: auto;
     }
     .ppc-venue {
       display: block;
@@ -1680,25 +1690,23 @@
           <div class="partner-type">Home Institution</div>
           <div class="partner-name">Eindhoven University of Technology</div>
           <p class="partner-desc">Control Systems group, Department of Electrical Engineering. Faculty position since February 2023, building the spatio-temporal control research line.</p>
-          <div class="partner-paper-wrap">
-            <a class="partner-paper-btn" href="https://arxiv.org/abs/2208.13104" target="_blank" rel="noopener">
-              Read paper →
-              <div class="paper-preview-card">
-                <span class="ppc-venue">IEEE TAC · 2026</span>
-                <span class="ppc-title">Dual Representations and H∞-Optimal Control of Partial Differential Equations</span>
-                <span class="ppc-authors">Shivakumar, Das, Peet</span>
-                <div class="ppc-body"><div class="ppc-scroll">
-                  <div class="ppc-line wf"></div><div class="ppc-line wl"></div><div class="ppc-line wf"></div>
-                  <div class="ppc-line wm"></div><div class="ppc-line wf"></div><div class="ppc-line wl"></div>
-                  <div class="ppc-line ws"></div><div class="ppc-line wf"></div><div class="ppc-line wm"></div>
-                  <div class="ppc-line wf"></div><div class="ppc-line wl"></div><div class="ppc-line wf"></div>
-                  <div class="ppc-line wf"></div><div class="ppc-line wl"></div><div class="ppc-line wf"></div>
-                  <div class="ppc-line wm"></div><div class="ppc-line wf"></div><div class="ppc-line wl"></div>
-                  <div class="ppc-line ws"></div><div class="ppc-line wf"></div><div class="ppc-line wm"></div>
-                  <div class="ppc-line wf"></div><div class="ppc-line wl"></div><div class="ppc-line wf"></div>
-                </div></div>
-              </div>
-            </a>
+          <div class="partner-paper-wrap" data-href="https://arxiv.org/abs/2208.13104">
+            <a class="partner-paper-btn" href="https://arxiv.org/abs/2208.13104" target="_blank" rel="noopener">Read paper →</a>
+            <div class="paper-preview-card">
+              <span class="ppc-venue">IEEE TAC · 2026</span>
+              <span class="ppc-title">Dual Representations and H∞-Optimal Control of Partial Differential Equations</span>
+              <span class="ppc-authors">Shivakumar, Das, Peet</span>
+              <div class="ppc-body"><div class="ppc-scroll">
+                <div class="ppc-line wf"></div><div class="ppc-line wl"></div><div class="ppc-line wf"></div>
+                <div class="ppc-line wm"></div><div class="ppc-line wf"></div><div class="ppc-line wl"></div>
+                <div class="ppc-line ws"></div><div class="ppc-line wf"></div><div class="ppc-line wm"></div>
+                <div class="ppc-line wf"></div><div class="ppc-line wl"></div><div class="ppc-line wf"></div>
+                <div class="ppc-line wf"></div><div class="ppc-line wl"></div><div class="ppc-line wf"></div>
+                <div class="ppc-line wm"></div><div class="ppc-line wf"></div><div class="ppc-line wl"></div>
+                <div class="ppc-line ws"></div><div class="ppc-line wf"></div><div class="ppc-line wm"></div>
+                <div class="ppc-line wf"></div><div class="ppc-line wl"></div><div class="ppc-line wf"></div>
+              </div></div>
+            </div>
           </div>
         </div>
       </div>
@@ -1712,25 +1720,23 @@
           <div class="partner-type">High-Tech Industry</div>
           <div class="partner-name">Canon Production Printing</div>
           <p class="partner-desc">Industrial collaboration on fault diagnosis, model reduction, and distributed control for next-generation production printing systems.</p>
-          <div class="partner-paper-wrap">
-            <a class="partner-paper-btn" href="https://arxiv.org/abs/2511.03379" target="_blank" rel="noopener">
-              Read paper →
-              <div class="paper-preview-card">
-                <span class="ppc-venue">arXiv · 2025</span>
-                <span class="ppc-title">A Digital Twin of Evaporative Thermo-Fluidic Process in Fixation Unit of DoD Inkjet Printers</span>
-                <span class="ppc-authors">Toolhally, Roelofs, Weiland, Das</span>
-                <div class="ppc-body"><div class="ppc-scroll">
-                  <div class="ppc-line wf"></div><div class="ppc-line wm"></div><div class="ppc-line wf"></div>
-                  <div class="ppc-line wl"></div><div class="ppc-line wf"></div><div class="ppc-line ws"></div>
-                  <div class="ppc-line wf"></div><div class="ppc-line wl"></div><div class="ppc-line wm"></div>
-                  <div class="ppc-line wf"></div><div class="ppc-line wf"></div><div class="ppc-line wl"></div>
-                  <div class="ppc-line wf"></div><div class="ppc-line wm"></div><div class="ppc-line wf"></div>
-                  <div class="ppc-line wl"></div><div class="ppc-line wf"></div><div class="ppc-line ws"></div>
-                  <div class="ppc-line wf"></div><div class="ppc-line wl"></div><div class="ppc-line wm"></div>
-                  <div class="ppc-line wf"></div><div class="ppc-line wf"></div><div class="ppc-line wl"></div>
-                </div></div>
-              </div>
-            </a>
+          <div class="partner-paper-wrap" data-href="https://arxiv.org/abs/2511.03379">
+            <a class="partner-paper-btn" href="https://arxiv.org/abs/2511.03379" target="_blank" rel="noopener">Read paper →</a>
+            <div class="paper-preview-card">
+              <span class="ppc-venue">arXiv · 2025</span>
+              <span class="ppc-title">A Digital Twin of Evaporative Thermo-Fluidic Process in Fixation Unit of DoD Inkjet Printers</span>
+              <span class="ppc-authors">Toolhally, Roelofs, Weiland, Das</span>
+              <div class="ppc-body"><div class="ppc-scroll">
+                <div class="ppc-line wf"></div><div class="ppc-line wm"></div><div class="ppc-line wf"></div>
+                <div class="ppc-line wl"></div><div class="ppc-line wf"></div><div class="ppc-line ws"></div>
+                <div class="ppc-line wf"></div><div class="ppc-line wl"></div><div class="ppc-line wm"></div>
+                <div class="ppc-line wf"></div><div class="ppc-line wf"></div><div class="ppc-line wl"></div>
+                <div class="ppc-line wf"></div><div class="ppc-line wm"></div><div class="ppc-line wf"></div>
+                <div class="ppc-line wl"></div><div class="ppc-line wf"></div><div class="ppc-line ws"></div>
+                <div class="ppc-line wf"></div><div class="ppc-line wl"></div><div class="ppc-line wm"></div>
+                <div class="ppc-line wf"></div><div class="ppc-line wf"></div><div class="ppc-line wl"></div>
+              </div></div>
+            </div>
           </div>
         </div>
       </div>
@@ -1746,25 +1752,23 @@
           <div class="partner-type">Aerospace Research</div>
           <div class="partner-name">European Space Agency</div>
           <p class="partner-desc">Funded research on robust LPV modelling and control for aerospace systems — with uncertainty quantification across the operating envelope.</p>
-          <div class="partner-paper-wrap">
-            <a class="partner-paper-btn" href="https://arxiv.org/abs/2602.13009" target="_blank" rel="noopener">
-              Read paper →
-              <div class="paper-preview-card">
-                <span class="ppc-venue">arXiv · 2026</span>
-                <span class="ppc-title">Bayesian Optimization Based Grid Point Allocation for LPV and Robust Control</span>
-                <span class="ppc-authors">Olucha, Sadeghzadeh, Das, Tóth</span>
-                <div class="ppc-body"><div class="ppc-scroll">
-                  <div class="ppc-line wl"></div><div class="ppc-line wf"></div><div class="ppc-line wm"></div>
-                  <div class="ppc-line wf"></div><div class="ppc-line wf"></div><div class="ppc-line wl"></div>
-                  <div class="ppc-line ws"></div><div class="ppc-line wf"></div><div class="ppc-line wl"></div>
-                  <div class="ppc-line wm"></div><div class="ppc-line wf"></div><div class="ppc-line wf"></div>
-                  <div class="ppc-line wl"></div><div class="ppc-line wf"></div><div class="ppc-line wm"></div>
-                  <div class="ppc-line wf"></div><div class="ppc-line wf"></div><div class="ppc-line wl"></div>
-                  <div class="ppc-line ws"></div><div class="ppc-line wf"></div><div class="ppc-line wl"></div>
-                  <div class="ppc-line wm"></div><div class="ppc-line wf"></div><div class="ppc-line wf"></div>
-                </div></div>
-              </div>
-            </a>
+          <div class="partner-paper-wrap" data-href="https://arxiv.org/abs/2602.13009">
+            <a class="partner-paper-btn" href="https://arxiv.org/abs/2602.13009" target="_blank" rel="noopener">Read paper →</a>
+            <div class="paper-preview-card">
+              <span class="ppc-venue">arXiv · 2026</span>
+              <span class="ppc-title">Bayesian Optimization Based Grid Point Allocation for LPV and Robust Control</span>
+              <span class="ppc-authors">Olucha, Sadeghzadeh, Das, Tóth</span>
+              <div class="ppc-body"><div class="ppc-scroll">
+                <div class="ppc-line wl"></div><div class="ppc-line wf"></div><div class="ppc-line wm"></div>
+                <div class="ppc-line wf"></div><div class="ppc-line wf"></div><div class="ppc-line wl"></div>
+                <div class="ppc-line ws"></div><div class="ppc-line wf"></div><div class="ppc-line wl"></div>
+                <div class="ppc-line wm"></div><div class="ppc-line wf"></div><div class="ppc-line wf"></div>
+                <div class="ppc-line wl"></div><div class="ppc-line wf"></div><div class="ppc-line wm"></div>
+                <div class="ppc-line wf"></div><div class="ppc-line wf"></div><div class="ppc-line wl"></div>
+                <div class="ppc-line ws"></div><div class="ppc-line wf"></div><div class="ppc-line wl"></div>
+                <div class="ppc-line wm"></div><div class="ppc-line wf"></div><div class="ppc-line wf"></div>
+              </div></div>
+            </div>
           </div>
         </div>
       </div>
@@ -2080,6 +2084,26 @@
   }, { threshold: 0.08 });
   document.querySelectorAll('.reveal').forEach(el => revealObs.observe(el));
 
+
+  // ── PAPER PREVIEW HOVER ──────────────────────────────────────────
+  document.querySelectorAll('.partner-paper-wrap').forEach(wrap => {
+    const card = wrap.querySelector('.paper-preview-card');
+    const href = wrap.dataset.href;
+    let leaveTimer;
+
+    wrap.addEventListener('mouseenter', () => {
+      clearTimeout(leaveTimer);
+      card.classList.add('ppc-visible');
+    });
+    wrap.addEventListener('mouseleave', () => {
+      leaveTimer = setTimeout(() => card.classList.remove('ppc-visible'), 120);
+    });
+    card.addEventListener('mouseenter', () => clearTimeout(leaveTimer));
+    card.addEventListener('mouseleave', () => {
+      leaveTimer = setTimeout(() => card.classList.remove('ppc-visible'), 120);
+    });
+    card.addEventListener('click', () => window.open(href, '_blank'));
+  });
 
   // ── NODE CLICK NAVIGATION ────────────────────────────────────────
   document.querySelectorAll('.t-node').forEach(node => {
