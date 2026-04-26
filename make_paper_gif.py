@@ -27,12 +27,13 @@ Options:
 import argparse
 import sys
 from pathlib import Path
+from typing import List, Optional
 from PIL import Image
 
 
 # ── PDF → list[PIL.Image] ─────────────────────────────────────────────────────
 
-def _render_with_pymupdf(pdf_path: str, dpi: int, max_pages: int | None) -> list[Image.Image]:
+def _render_with_pymupdf(pdf_path: str, dpi: int, max_pages: Optional[int]) -> List[Image.Image]:
     import fitz  # PyMuPDF
     doc = fitz.open(pdf_path)
     mat = fitz.Matrix(dpi / 72, dpi / 72)
@@ -45,13 +46,13 @@ def _render_with_pymupdf(pdf_path: str, dpi: int, max_pages: int | None) -> list
     return pages
 
 
-def _render_with_pdf2image(pdf_path: str, dpi: int, max_pages: int | None) -> list[Image.Image]:
+def _render_with_pdf2image(pdf_path: str, dpi: int, max_pages: Optional[int]) -> List[Image.Image]:
     from pdf2image import convert_from_path
     pages = convert_from_path(pdf_path, dpi=dpi)
     return pages[:max_pages] if max_pages else pages
 
 
-def render_pages(pdf_path: str, dpi: int = 100, max_pages: int | None = 5) -> list[Image.Image]:
+def render_pages(pdf_path: str, dpi: int = 100, max_pages: Optional[int] = 5) -> List[Image.Image]:
     """Render PDF pages to RGB PIL Images. Tries PyMuPDF then pdf2image."""
     for fn in (_render_with_pymupdf, _render_with_pdf2image):
         try:
@@ -68,7 +69,7 @@ def render_pages(pdf_path: str, dpi: int = 100, max_pages: int | None = 5) -> li
 
 # ── stitch pages vertically ───────────────────────────────────────────────────
 
-def stitch(pages: list[Image.Image], target_w: int, gap: int = 6) -> Image.Image:
+def stitch(pages: List[Image.Image], target_w: int, gap: int = 6) -> Image.Image:
     """Scale all pages to target_w and stack them vertically with a gap."""
     scaled = []
     for p in pages:
@@ -93,7 +94,7 @@ def make_frames(
     viewport_h: int,
     fps: int,
     duration: float,
-) -> list[Image.Image]:
+) -> List[Image.Image]:
     """Slide a viewport_h window from top to bottom and return cropped frames."""
     w = full.width
     scroll_dist = max(full.height - viewport_h, 0)
@@ -110,7 +111,7 @@ def make_frames(
 # ── save GIF ──────────────────────────────────────────────────────────────────
 
 def save_gif(
-    frames: list[Image.Image],
+    frames: List[Image.Image],
     out_path: str,
     fps: int,
     colors: int = 64,
@@ -137,7 +138,7 @@ def pdf_to_gif(
     fps: int       = 15,
     duration: float = 8.0,
     dpi: int       = 100,
-    max_pages: int | None = 5,
+    max_pages: Optional[int] = 5,
     gap: int       = 6,
     colors: int    = 64,
 ) -> None:

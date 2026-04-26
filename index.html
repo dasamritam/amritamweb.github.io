@@ -868,34 +868,10 @@
       overflow: hidden;
       border-top: 1px solid rgba(0,0,0,0.07);
     }
-    .ppc-body::after {
-      content: '';
-      position: absolute;
-      bottom: 0; left: 0; right: 0;
-      height: 32px;
-      background: linear-gradient(transparent, #fff);
-      pointer-events: none;
-      z-index: 1;
-    }
-    .ppc-scroll {
+    .ppc-pdf-gif {
+      width: 100%;
       display: block;
-      animation: ppc-scroll 7s linear infinite;
-    }
-    /* PDF page simulation */
-    .pdf-page { padding: 0.55rem 0.7rem 1.8rem; }
-    .pdf-title  { height: 6px;   background: rgba(0,0,0,0.18); border-radius: 1px; width: 88%; margin: 0 auto 3px; }
-    .pdf-title2 { height: 6px;   background: rgba(0,0,0,0.18); border-radius: 1px; width: 62%; margin: 0 auto 5px; }
-    .pdf-auth   { height: 3.5px; background: rgba(0,0,0,0.11); border-radius: 1px; width: 70%; margin: 0 auto 2px; }
-    .pdf-rule   { height: 1px;   background: rgba(0,0,0,0.10); margin: 5px 0; }
-    .pdf-head   { height: 4.5px; background: rgba(0,0,0,0.16); border-radius: 1px; margin-bottom: 4px; }
-    .pdf-line   { height: 3px;   background: rgba(0,0,0,0.08); border-radius: 1px; margin-bottom: 2.5px; }
-    .pdf-eq     { height: 5px;   background: rgba(0,0,0,0.10); border-radius: 1px; width: 44%; margin: 4px auto; }
-    .pdf-fig    { border: 1px solid rgba(0,0,0,0.11); height: 32px; margin: 5px 0 2px; background: rgba(0,0,0,0.025); }
-    .pdf-cap    { height: 3px;   background: rgba(0,0,0,0.07); border-radius: 1px; width: 65%; margin: 0 auto 5px; }
-    .pdf-gap    { height: 5px; }
-    @keyframes ppc-scroll {
-      0%   { transform: translateY(0); }
-      100% { transform: translateY(-50%); }
+      object-fit: cover;
     }
 
     /* ================================================================
@@ -1690,52 +1666,7 @@
               <div class="ppc-venue">IEEE TAC · 2026</div>
               <div class="ppc-title">Dual Representations and H∞-Optimal Control of Partial Differential Equations</div>
               <div class="ppc-authors">Shivakumar, Das, Peet</div>
-              <div class="ppc-body"><div class="ppc-scroll">
-                <div class="pdf-page">
-                  <div class="pdf-title"></div><div class="pdf-title2"></div>
-                  <div class="pdf-auth"></div><div class="pdf-auth" style="width:52%;margin:0 auto 5px"></div>
-                  <div class="pdf-rule"></div>
-                  <div class="pdf-head" style="width:34%"></div>
-                  <div class="pdf-line"></div><div class="pdf-line" style="width:96%"></div><div class="pdf-line" style="width:92%"></div><div class="pdf-line" style="width:88%"></div><div class="pdf-line" style="width:48%"></div>
-                  <div class="pdf-gap"></div>
-                  <div class="pdf-head" style="width:52%"></div>
-                  <div class="pdf-line"></div><div class="pdf-line" style="width:94%"></div><div class="pdf-line" style="width:97%"></div>
-                  <div class="pdf-eq"></div>
-                  <div class="pdf-line" style="width:91%"></div><div class="pdf-line" style="width:63%"></div>
-                  <div class="pdf-gap"></div>
-                  <div class="pdf-head" style="width:44%"></div>
-                  <div class="pdf-line"></div><div class="pdf-line" style="width:95%"></div><div class="pdf-line" style="width:89%"></div>
-                  <div class="pdf-fig"></div><div class="pdf-cap"></div>
-                  <div class="pdf-line" style="width:92%"></div><div class="pdf-line" style="width:71%"></div>
-                  <div class="pdf-gap"></div>
-                  <div class="pdf-head" style="width:38%"></div>
-                  <div class="pdf-line"></div><div class="pdf-line" style="width:96%"></div><div class="pdf-line" style="width:84%"></div>
-                  <div class="pdf-eq" style="width:52%"></div>
-                  <div class="pdf-line" style="width:93%"></div><div class="pdf-line" style="width:58%"></div>
-                </div>
-                <div class="pdf-page">
-                  <div class="pdf-title"></div><div class="pdf-title2"></div>
-                  <div class="pdf-auth"></div><div class="pdf-auth" style="width:52%;margin:0 auto 5px"></div>
-                  <div class="pdf-rule"></div>
-                  <div class="pdf-head" style="width:34%"></div>
-                  <div class="pdf-line"></div><div class="pdf-line" style="width:96%"></div><div class="pdf-line" style="width:92%"></div><div class="pdf-line" style="width:88%"></div><div class="pdf-line" style="width:48%"></div>
-                  <div class="pdf-gap"></div>
-                  <div class="pdf-head" style="width:52%"></div>
-                  <div class="pdf-line"></div><div class="pdf-line" style="width:94%"></div><div class="pdf-line" style="width:97%"></div>
-                  <div class="pdf-eq"></div>
-                  <div class="pdf-line" style="width:91%"></div><div class="pdf-line" style="width:63%"></div>
-                  <div class="pdf-gap"></div>
-                  <div class="pdf-head" style="width:44%"></div>
-                  <div class="pdf-line"></div><div class="pdf-line" style="width:95%"></div><div class="pdf-line" style="width:89%"></div>
-                  <div class="pdf-fig"></div><div class="pdf-cap"></div>
-                  <div class="pdf-line" style="width:92%"></div><div class="pdf-line" style="width:71%"></div>
-                  <div class="pdf-gap"></div>
-                  <div class="pdf-head" style="width:38%"></div>
-                  <div class="pdf-line"></div><div class="pdf-line" style="width:96%"></div><div class="pdf-line" style="width:84%"></div>
-                  <div class="pdf-eq" style="width:52%"></div>
-                  <div class="pdf-line" style="width:93%"></div><div class="pdf-line" style="width:58%"></div>
-                </div>
-              </div></div>
+              <div class="ppc-body"><img class="ppc-pdf-gif" src="paper_gifs/tue.gif" alt="Paper preview"></div>
             </div>
           </div>
         </div>
@@ -1756,48 +1687,7 @@
               <div class="ppc-venue">arXiv · 2025</div>
               <div class="ppc-title">A Digital Twin of Evaporative Thermo-Fluidic Process in Fixation Unit of DoD Inkjet Printers</div>
               <div class="ppc-authors">Toolhally, Roelofs, Weiland, Das</div>
-              <div class="ppc-body"><div class="ppc-scroll">
-                <div class="pdf-page">
-                  <div class="pdf-title"></div><div class="pdf-title2" style="width:75%"></div>
-                  <div class="pdf-auth"></div><div class="pdf-auth" style="width:58%;margin:0 auto 5px"></div>
-                  <div class="pdf-rule"></div>
-                  <div class="pdf-head" style="width:34%"></div>
-                  <div class="pdf-line"></div><div class="pdf-line" style="width:94%"></div><div class="pdf-line" style="width:90%"></div><div class="pdf-line" style="width:86%"></div><div class="pdf-line" style="width:52%"></div>
-                  <div class="pdf-gap"></div>
-                  <div class="pdf-head" style="width:48%"></div>
-                  <div class="pdf-line"></div><div class="pdf-line" style="width:97%"></div><div class="pdf-line" style="width:93%"></div>
-                  <div class="pdf-fig"></div><div class="pdf-cap" style="width:72%"></div>
-                  <div class="pdf-line" style="width:88%"></div><div class="pdf-line" style="width:66%"></div>
-                  <div class="pdf-gap"></div>
-                  <div class="pdf-head" style="width:56%"></div>
-                  <div class="pdf-line"></div><div class="pdf-line" style="width:95%"></div><div class="pdf-line" style="width:91%"></div>
-                  <div class="pdf-eq" style="width:38%"></div>
-                  <div class="pdf-line" style="width:93%"></div><div class="pdf-line" style="width:74%"></div>
-                  <div class="pdf-gap"></div>
-                  <div class="pdf-head" style="width:40%"></div>
-                  <div class="pdf-line"></div><div class="pdf-line" style="width:96%"></div><div class="pdf-line" style="width:82%"></div><div class="pdf-line" style="width:59%"></div>
-                </div>
-                <div class="pdf-page">
-                  <div class="pdf-title"></div><div class="pdf-title2" style="width:75%"></div>
-                  <div class="pdf-auth"></div><div class="pdf-auth" style="width:58%;margin:0 auto 5px"></div>
-                  <div class="pdf-rule"></div>
-                  <div class="pdf-head" style="width:34%"></div>
-                  <div class="pdf-line"></div><div class="pdf-line" style="width:94%"></div><div class="pdf-line" style="width:90%"></div><div class="pdf-line" style="width:86%"></div><div class="pdf-line" style="width:52%"></div>
-                  <div class="pdf-gap"></div>
-                  <div class="pdf-head" style="width:48%"></div>
-                  <div class="pdf-line"></div><div class="pdf-line" style="width:97%"></div><div class="pdf-line" style="width:93%"></div>
-                  <div class="pdf-fig"></div><div class="pdf-cap" style="width:72%"></div>
-                  <div class="pdf-line" style="width:88%"></div><div class="pdf-line" style="width:66%"></div>
-                  <div class="pdf-gap"></div>
-                  <div class="pdf-head" style="width:56%"></div>
-                  <div class="pdf-line"></div><div class="pdf-line" style="width:95%"></div><div class="pdf-line" style="width:91%"></div>
-                  <div class="pdf-eq" style="width:38%"></div>
-                  <div class="pdf-line" style="width:93%"></div><div class="pdf-line" style="width:74%"></div>
-                  <div class="pdf-gap"></div>
-                  <div class="pdf-head" style="width:40%"></div>
-                  <div class="pdf-line"></div><div class="pdf-line" style="width:96%"></div><div class="pdf-line" style="width:82%"></div><div class="pdf-line" style="width:59%"></div>
-                </div>
-              </div></div>
+              <div class="ppc-body"><img class="ppc-pdf-gif" src="paper_gifs/canon.gif" alt="Paper preview"></div>
             </div>
           </div>
         </div>
@@ -1820,52 +1710,7 @@
               <div class="ppc-venue">arXiv · 2026</div>
               <div class="ppc-title">Bayesian Optimization Based Grid Point Allocation for LPV and Robust Control</div>
               <div class="ppc-authors">Olucha, Sadeghzadeh, Das, Tóth</div>
-              <div class="ppc-body"><div class="ppc-scroll">
-                <div class="pdf-page">
-                  <div class="pdf-title"></div><div class="pdf-title2" style="width:70%"></div>
-                  <div class="pdf-auth"></div><div class="pdf-auth" style="width:60%;margin:0 auto 5px"></div>
-                  <div class="pdf-rule"></div>
-                  <div class="pdf-head" style="width:34%"></div>
-                  <div class="pdf-line"></div><div class="pdf-line" style="width:93%"></div><div class="pdf-line" style="width:97%"></div><div class="pdf-line" style="width:85%"></div><div class="pdf-line" style="width:44%"></div>
-                  <div class="pdf-gap"></div>
-                  <div class="pdf-head" style="width:50%"></div>
-                  <div class="pdf-line"></div><div class="pdf-line" style="width:96%"></div><div class="pdf-line" style="width:91%"></div>
-                  <div class="pdf-eq" style="width:50%"></div>
-                  <div class="pdf-line" style="width:88%"></div><div class="pdf-line" style="width:70%"></div>
-                  <div class="pdf-gap"></div>
-                  <div class="pdf-head" style="width:42%"></div>
-                  <div class="pdf-line"></div><div class="pdf-line" style="width:94%"></div>
-                  <div class="pdf-fig"></div><div class="pdf-cap" style="width:68%"></div>
-                  <div class="pdf-line" style="width:90%"></div><div class="pdf-line" style="width:62%"></div>
-                  <div class="pdf-gap"></div>
-                  <div class="pdf-head" style="width:58%"></div>
-                  <div class="pdf-line"></div><div class="pdf-line" style="width:95%"></div><div class="pdf-line" style="width:87%"></div>
-                  <div class="pdf-eq" style="width:42%"></div>
-                  <div class="pdf-line" style="width:92%"></div><div class="pdf-line" style="width:55%"></div>
-                </div>
-                <div class="pdf-page">
-                  <div class="pdf-title"></div><div class="pdf-title2" style="width:70%"></div>
-                  <div class="pdf-auth"></div><div class="pdf-auth" style="width:60%;margin:0 auto 5px"></div>
-                  <div class="pdf-rule"></div>
-                  <div class="pdf-head" style="width:34%"></div>
-                  <div class="pdf-line"></div><div class="pdf-line" style="width:93%"></div><div class="pdf-line" style="width:97%"></div><div class="pdf-line" style="width:85%"></div><div class="pdf-line" style="width:44%"></div>
-                  <div class="pdf-gap"></div>
-                  <div class="pdf-head" style="width:50%"></div>
-                  <div class="pdf-line"></div><div class="pdf-line" style="width:96%"></div><div class="pdf-line" style="width:91%"></div>
-                  <div class="pdf-eq" style="width:50%"></div>
-                  <div class="pdf-line" style="width:88%"></div><div class="pdf-line" style="width:70%"></div>
-                  <div class="pdf-gap"></div>
-                  <div class="pdf-head" style="width:42%"></div>
-                  <div class="pdf-line"></div><div class="pdf-line" style="width:94%"></div>
-                  <div class="pdf-fig"></div><div class="pdf-cap" style="width:68%"></div>
-                  <div class="pdf-line" style="width:90%"></div><div class="pdf-line" style="width:62%"></div>
-                  <div class="pdf-gap"></div>
-                  <div class="pdf-head" style="width:58%"></div>
-                  <div class="pdf-line"></div><div class="pdf-line" style="width:95%"></div><div class="pdf-line" style="width:87%"></div>
-                  <div class="pdf-eq" style="width:42%"></div>
-                  <div class="pdf-line" style="width:92%"></div><div class="pdf-line" style="width:55%"></div>
-                </div>
-              </div></div>
+              <div class="ppc-body"><img class="ppc-pdf-gif" src="paper_gifs/esa.gif" alt="Paper preview"></div>
             </div>
           </div>
         </div>
