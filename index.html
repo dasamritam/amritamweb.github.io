@@ -726,7 +726,7 @@
 
     .partners-grid {
       display: grid;
-      grid-template-columns: repeat(4, 1fr);
+      grid-template-columns: repeat(3, 1fr);
       gap: 1.4rem;
     }
     @media (max-width: 900px) { .partners-grid { grid-template-columns: 1fr 1fr; } }
@@ -774,6 +774,123 @@
       font-size: 0.78rem;
       line-height: 1.65;
       color: var(--ink-mid);
+    }
+
+    /* partner logos */
+    .partner-logo-img {
+      max-height: 44px;
+      width: auto;
+      display: block;
+      object-fit: contain;
+    }
+    .partner-logo-dark {
+      background: #003B71;
+      padding: 0.35rem 0.65rem;
+      display: inline-flex;
+      align-items: center;
+    }
+    .partner-logo-dark .partner-logo-img { max-height: 30px; }
+
+    /* ── read-paper button ─────────────────────────────────────────── */
+    .partner-paper-wrap {
+      position: relative;
+      display: inline-block;
+      margin-top: 0.6rem;
+    }
+    .partner-paper-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.38rem;
+      font-family: var(--mono);
+      font-size: 0.58rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #8B4A1C;
+      text-decoration: none;
+      transition: gap 0.2s, color 0.2s;
+    }
+    .partner-paper-btn:hover { gap: 0.62rem; color: #6B3414; }
+
+    /* ── paper preview popup ───────────────────────────────────────── */
+    .paper-preview-card {
+      position: absolute;
+      bottom: calc(100% + 0.85rem);
+      left: 0;
+      width: 252px;
+      background: #fff;
+      border: 1px solid rgba(139,74,28,0.16);
+      box-shadow: 0 16px 44px rgba(0,0,0,0.14), 0 2px 8px rgba(0,0,0,0.06);
+      opacity: 0;
+      transform: translateY(10px) scale(0.97);
+      pointer-events: none;
+      transition: opacity 0.24s ease, transform 0.24s ease;
+      z-index: 100;
+      overflow: hidden;
+    }
+    .partner-paper-wrap:hover .paper-preview-card {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+    .ppc-venue {
+      display: block;
+      background: rgba(139,74,28,0.07);
+      border-bottom: 1px solid rgba(139,74,28,0.12);
+      padding: 0.38rem 0.85rem;
+      font-family: var(--mono);
+      font-size: 0.52rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: #8B4A1C;
+    }
+    .ppc-title {
+      display: block;
+      padding: 0.55rem 0.85rem 0.2rem;
+      font-family: var(--display);
+      font-weight: 600;
+      font-size: 0.72rem;
+      line-height: 1.35;
+      color: var(--ink);
+    }
+    .ppc-authors {
+      display: block;
+      padding: 0 0.85rem 0.5rem;
+      font-size: 0.6rem;
+      line-height: 1.5;
+      color: var(--ink-mid);
+    }
+    .ppc-body {
+      position: relative;
+      height: 74px;
+      overflow: hidden;
+      border-top: 1px solid rgba(0,0,0,0.06);
+    }
+    .ppc-body::after {
+      content: '';
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      height: 36px;
+      background: linear-gradient(transparent, #fff);
+      pointer-events: none;
+      z-index: 1;
+    }
+    .ppc-scroll {
+      display: block;
+      padding: 0.5rem 0.85rem 0;
+      animation: ppc-scroll 5s linear infinite;
+    }
+    .ppc-line {
+      height: 5px;
+      border-radius: 2px;
+      background: rgba(0,0,0,0.09);
+      margin-bottom: 5px;
+    }
+    .ppc-line.wf { width: 100%; }
+    .ppc-line.wl { width: 91%; }
+    .ppc-line.wm { width: 80%; }
+    .ppc-line.ws { width: 58%; }
+    @keyframes ppc-scroll {
+      0%   { transform: translateY(0); }
+      100% { transform: translateY(-50%); }
     }
 
     /* ================================================================
@@ -1556,48 +1673,92 @@
       <!-- TU/e -->
       <div class="partner-card reveal">
         <div class="partner-logo-wrap">
-          <span class="partner-logo-text" style="font-family:var(--sans);font-weight:700;letter-spacing:-0.03em;color:#C8102E;">TU/e</span>
+          <img class="partner-logo-img" src="logos/TUe-logo-scarlet-rgb.png" alt="Eindhoven University of Technology" />
         </div>
         <div>
           <div class="partner-type">Home Institution</div>
           <div class="partner-name">Eindhoven University of Technology</div>
           <p class="partner-desc">Control Systems group, Department of Electrical Engineering. Faculty position since February 2023, building the spatio-temporal control research line.</p>
+          <div class="partner-paper-wrap">
+            <a class="partner-paper-btn" href="https://arxiv.org/abs/2208.13104" target="_blank" rel="noopener">Read paper →</a>
+            <div class="paper-preview-card">
+              <span class="ppc-venue">IEEE TAC · 2026</span>
+              <span class="ppc-title">Dual Representations and H∞-Optimal Control of Partial Differential Equations</span>
+              <span class="ppc-authors">Shivakumar, Das, Peet</span>
+              <div class="ppc-body"><div class="ppc-scroll">
+                <div class="ppc-line wf"></div><div class="ppc-line wl"></div><div class="ppc-line wf"></div>
+                <div class="ppc-line wm"></div><div class="ppc-line wf"></div><div class="ppc-line wl"></div>
+                <div class="ppc-line ws"></div><div class="ppc-line wf"></div><div class="ppc-line wm"></div>
+                <div class="ppc-line wf"></div><div class="ppc-line wl"></div><div class="ppc-line wf"></div>
+                <div class="ppc-line wf"></div><div class="ppc-line wl"></div><div class="ppc-line wf"></div>
+                <div class="ppc-line wm"></div><div class="ppc-line wf"></div><div class="ppc-line wl"></div>
+                <div class="ppc-line ws"></div><div class="ppc-line wf"></div><div class="ppc-line wm"></div>
+                <div class="ppc-line wf"></div><div class="ppc-line wl"></div><div class="ppc-line wf"></div>
+              </div></div>
+            </div>
+          </div>
         </div>
       </div>
 
       <!-- Canon -->
       <div class="partner-card reveal d1">
         <div class="partner-logo-wrap">
-          <span class="partner-logo-text" style="font-family:var(--sans);font-weight:700;color:#CC0000;letter-spacing:-0.02em;">Canon</span>
+          <img class="partner-logo-img" src="logos/canon.png" alt="Canon Production Printing" />
         </div>
         <div>
           <div class="partner-type">High-Tech Industry</div>
           <div class="partner-name">Canon Production Printing</div>
           <p class="partner-desc">Industrial collaboration on fault diagnosis, model reduction, and distributed control for next-generation production printing systems.</p>
+          <div class="partner-paper-wrap">
+            <a class="partner-paper-btn" href="https://arxiv.org/abs/2511.03379" target="_blank" rel="noopener">Read paper →</a>
+            <div class="paper-preview-card">
+              <span class="ppc-venue">arXiv · 2025</span>
+              <span class="ppc-title">A Digital Twin of Evaporative Thermo-Fluidic Process in Fixation Unit of DoD Inkjet Printers</span>
+              <span class="ppc-authors">Toolhally, Roelofs, Weiland, Das</span>
+              <div class="ppc-body"><div class="ppc-scroll">
+                <div class="ppc-line wf"></div><div class="ppc-line wm"></div><div class="ppc-line wf"></div>
+                <div class="ppc-line wl"></div><div class="ppc-line wf"></div><div class="ppc-line ws"></div>
+                <div class="ppc-line wf"></div><div class="ppc-line wl"></div><div class="ppc-line wm"></div>
+                <div class="ppc-line wf"></div><div class="ppc-line wf"></div><div class="ppc-line wl"></div>
+                <div class="ppc-line wf"></div><div class="ppc-line wm"></div><div class="ppc-line wf"></div>
+                <div class="ppc-line wl"></div><div class="ppc-line wf"></div><div class="ppc-line ws"></div>
+                <div class="ppc-line wf"></div><div class="ppc-line wl"></div><div class="ppc-line wm"></div>
+                <div class="ppc-line wf"></div><div class="ppc-line wf"></div><div class="ppc-line wl"></div>
+              </div></div>
+            </div>
+          </div>
         </div>
       </div>
 
       <!-- ESA -->
       <div class="partner-card reveal d2">
         <div class="partner-logo-wrap">
-          <span class="partner-logo-text" style="font-family:var(--sans);font-weight:700;color:#003B71;letter-spacing:0.02em;">ESA</span>
+          <div class="partner-logo-dark">
+            <img class="partner-logo-img" src="logos/ESA_logo_2020_Deep-2048x1286.jpg" alt="European Space Agency" />
+          </div>
         </div>
         <div>
           <div class="partner-type">Aerospace Research</div>
           <div class="partner-name">European Space Agency</div>
           <p class="partner-desc">Funded research on robust LPV modelling and control for aerospace systems — with uncertainty quantification across the operating envelope.</p>
-        </div>
-      </div>
-
-      <!-- KTH -->
-      <div class="partner-card reveal d3">
-        <div class="partner-logo-wrap">
-          <span class="partner-logo-text" style="font-family:var(--sans);font-weight:700;color:var(--ink);letter-spacing:0.02em;">KTH</span>
-        </div>
-        <div>
-          <div class="partner-type">Academic Network</div>
-          <div class="partner-name">KTH Royal Institute of Technology</div>
-          <p class="partner-desc">Continuing collaboration with Decision &amp; Control Systems on networked control, distributed estimation, and societal-scale challenges in control engineering.</p>
+          <div class="partner-paper-wrap">
+            <a class="partner-paper-btn" href="https://arxiv.org/abs/2602.13009" target="_blank" rel="noopener">Read paper →</a>
+            <div class="paper-preview-card">
+              <span class="ppc-venue">arXiv · 2026</span>
+              <span class="ppc-title">Bayesian Optimization Based Grid Point Allocation for LPV and Robust Control</span>
+              <span class="ppc-authors">Olucha, Sadeghzadeh, Das, Tóth</span>
+              <div class="ppc-body"><div class="ppc-scroll">
+                <div class="ppc-line wl"></div><div class="ppc-line wf"></div><div class="ppc-line wm"></div>
+                <div class="ppc-line wf"></div><div class="ppc-line wf"></div><div class="ppc-line wl"></div>
+                <div class="ppc-line ws"></div><div class="ppc-line wf"></div><div class="ppc-line wl"></div>
+                <div class="ppc-line wm"></div><div class="ppc-line wf"></div><div class="ppc-line wf"></div>
+                <div class="ppc-line wl"></div><div class="ppc-line wf"></div><div class="ppc-line wm"></div>
+                <div class="ppc-line wf"></div><div class="ppc-line wf"></div><div class="ppc-line wl"></div>
+                <div class="ppc-line ws"></div><div class="ppc-line wf"></div><div class="ppc-line wl"></div>
+                <div class="ppc-line wm"></div><div class="ppc-line wf"></div><div class="ppc-line wf"></div>
+              </div></div>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -1771,9 +1932,9 @@
         <div style="margin-top:2rem;">
           <div class="footer-col-head">Lab</div>
           <ul class="footer-links">
-            <li><a href="#partnerships">Control Systems · TU/e</a></li>
+            <li><a href="#partnerships">TU/e · Control Systems</a></li>
             <li><a href="#partnerships">Canon Production Printing</a></li>
-            <li><a href="#partnerships">ESA &amp; EU Horizon</a></li>
+            <li><a href="#partnerships">European Space Agency</a></li>
           </ul>
         </div>
       </div>
