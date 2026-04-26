@@ -788,6 +788,363 @@ def make_diagnostics_gif():
     save_gif(fig, update, os.path.join(OUT, 'gif-diagnostics.gif'))
 
 
+# ─────────────────────────────────────────────────────────────────────────────
+# GIF 4b — Chaotic machine network · real engineering schematic symbols
+#           20 nodes (no hub) · 55 edges · 4 corner probes launch simultaneous
+#           BFS; false leads fade, winning path to pump fault stays lit
+# ─────────────────────────────────────────────────────────────────────────────
+def make_diagnostics_complex_gif():
+    from collections import deque
+
+    AR = W / H  # 1.5 — aspect-ratio correction for visually symmetric symbols
+
+    # ── Chaotic node layout — 20 nodes, no grid, mixed symbol types ───────────
+    nodes = np.array([
+        [0.09, 0.85],   #  0  spring      ← probe
+        [0.28, 0.90],   #  1  capacitor
+        [0.51, 0.86],   #  2  opamp
+        [0.73, 0.90],   #  3  resistor    ← probe
+        [0.93, 0.81],   #  4  sensor      ← probe
+        [0.17, 0.67],   #  5  controller
+        [0.40, 0.70],   #  6  inductor
+        [0.63, 0.68],   #  7  valve
+        [0.88, 0.62],   #  8  spring
+        [0.06, 0.49],   #  9  opamp       ← probe
+        [0.27, 0.50],   # 10  damper
+        [0.50, 0.52],   # 11  capacitor
+        [0.72, 0.50],   # 12  resistor
+        [0.93, 0.47],   # 13  sensor
+        [0.14, 0.31],   # 14  inductor
+        [0.37, 0.32],   # 15  spring
+        [0.59, 0.29],   # 16  opamp
+        [0.82, 0.30],   # 17  valve
+        [0.22, 0.11],   # 18  damper
+        [0.52, 0.11],   # 19  pump        ← FAULT
+    ])
+
+    sym_types = [
+        'spring','capacitor','opamp','resistor','sensor',
+        'controller','inductor','valve','spring','opamp',
+        'sensor','capacitor','resistor','sensor','inductor',
+        'spring','opamp','valve','motor','pump',
+    ]
+
+    FAULT  = 19
+    PROBES = [0, 3, 4, 9]   # four monitoring nodes at corners — no hub
+
+    edges = [
+        # local horizontal links
+        (0,1),(1,2),(2,3),(3,4),
+        (5,6),(6,7),(7,8),
+        (9,10),(10,11),(11,12),(12,13),
+        (14,15),(15,16),(16,17),
+        (18,19),
+        # downward struts
+        (0,5),(1,6),(2,6),(2,7),(3,7),(4,8),
+        (5,9),(5,10),(6,10),(6,11),(7,11),(7,12),(8,12),(8,13),
+        (9,14),(10,14),(10,15),(11,15),(11,16),(12,16),(12,17),(13,17),
+        (14,18),(15,18),(15,19),(16,19),(17,19),
+        # long-range chaos (create crossings)
+        (0,9),(1,5),(3,8),(4,13),
+        (2,11),(4,12),(0,6),
+        (6,15),(7,16),(8,17),
+        (10,16),(11,17),
+        (13,16),
+    ]
+
+    # deduplicate while preserving order
+    seen = set(); edges_uniq = []
+    for e in edges:
+        key = (min(e), max(e))
+        if key not in seen:
+            seen.add(key); edges_uniq.append(e)
+    edges = edges_uniq
+
+    adj = {i: set() for i in range(len(nodes))}
+    for a, b in edges:
+        adj[a].add(b); adj[b].add(a)
+
+    def bfs_from(src):
+        d = {src: 0}; q = deque([src])
+        while q:
+            v = q.popleft()
+            for u in adj[v]:
+                if u not in d:
+                    d[u] = d[v] + 1; q.append(u)
+        return d
+
+    # multi-source: minimum distance from ANY probe to each node
+    dist_probes  = {p: bfs_from(p) for p in PROBES}
+    dist_any     = {v: min(dist_probes[p].get(v, 99) for p in PROBES)
+                    for v in range(len(nodes))}
+    max_dist_any = max(dist_any.values())
+
+    # winning probe = closest to fault
+    winning = min(PROBES, key=lambda p: dist_probes[p].get(FAULT, 99))
+
+    # shortest path: winning probe → fault
+    parent_w = {winning: None}; q = deque([winning])
+    while q:
+        v = q.popleft()
+        if v == FAULT: break
+        for u in adj[v]:
+            if u not in parent_w:
+                parent_w[u] = v; q.append(u)
+    true_path = []
+    v = FAULT
+    while v is not None:
+        true_path.append(v); v = parent_w.get(v)
+    true_path.reverse()
+    true_path_set   = set(true_path)
+    true_path_edges = {(a, b) for a, b in zip(true_path[:-1], true_path[1:])}
+    true_path_edges |= {(b, a) for (a, b) in true_path_edges}
+
+    fig, ax = make_fig()
+
+    # ── Engineering schematic symbol drawers ──────────────────────────────────
+    def draw_controller(cx, cy, s, col, lw):
+        sx, sy = s, s * AR
+        arts = []
+        arts += ax.plot([cx-sx,cx+sx,cx+sx,cx-sx,cx-sx],
+                        [cy-sy*.60,cy-sy*.60,cy+sy*.60,cy+sy*.60,cy-sy*.60],
+                        color=col, lw=lw, solid_capstyle='round', zorder=5)
+        arts += ax.plot([cx-sx*.45,cx+sx*.45,cx+sx*.45,cx-sx*.45,cx-sx*.45],
+                        [cy-sy*.28,cy-sy*.28,cy+sy*.28,cy+sy*.28,cy-sy*.28],
+                        color=col, lw=lw*.60, zorder=5)
+        for dx in [-sx*.42, 0, sx*.42]:
+            arts += ax.plot([cx+dx,cx+dx],[cy+sy*.60,cy+sy*.82], color=col,lw=lw*.70,zorder=5)
+            arts += ax.plot([cx+dx,cx+dx],[cy-sy*.82,cy-sy*.60], color=col,lw=lw*.70,zorder=5)
+        return arts
+
+    def draw_opamp(cx, cy, s, col, lw):
+        sx, sy = s, s * AR
+        arts = []
+        arts += ax.plot([cx-sx,cx-sx,cx+sx,cx-sx],
+                        [cy+sy*.76,cy-sy*.76,cy,cy+sy*.76],
+                        color=col, lw=lw, solid_capstyle='round', zorder=5)
+        arts += ax.plot([cx-sx,cx-sx*.70],[cy+sy*.30,cy+sy*.30], color=col,lw=lw*.70,zorder=5)
+        arts += ax.plot([cx-sx*.85,cx-sx*.85],[cy+sy*.15,cy+sy*.45], color=col,lw=lw*.70,zorder=5)
+        arts += ax.plot([cx-sx,cx-sx*.70],[cy-sy*.30,cy-sy*.30], color=col,lw=lw*.70,zorder=5)
+        return arts
+
+    def draw_resistor(cx, cy, s, col, lw):
+        sy = s * AR * 0.36
+        arts = []
+        arts += ax.plot([cx-s,cx-s*.55],[cy,cy], color=col,lw=lw,zorder=5)
+        arts += ax.plot([cx+s*.55,cx+s],[cy,cy], color=col,lw=lw,zorder=5)
+        arts += ax.plot([cx-s*.55,cx+s*.55,cx+s*.55,cx-s*.55,cx-s*.55],
+                        [cy-sy,cy-sy,cy+sy,cy+sy,cy-sy], color=col,lw=lw,zorder=5)
+        return arts
+
+    def draw_capacitor(cx, cy, s, col, lw):
+        sy = s * AR
+        arts = []
+        arts += ax.plot([cx-s,cx-s*.14],[cy,cy], color=col,lw=lw,zorder=5)
+        arts += ax.plot([cx+s*.14,cx+s],[cy,cy], color=col,lw=lw,zorder=5)
+        arts += ax.plot([cx-s*.14,cx-s*.14],[cy-sy*.52,cy+sy*.52], color=col,lw=lw*2.0,zorder=5)
+        arts += ax.plot([cx+s*.14,cx+s*.14],[cy-sy*.52,cy+sy*.52], color=col,lw=lw*2.0,zorder=5)
+        return arts
+
+    def draw_inductor(cx, cy, s, col, lw):
+        arts = []
+        arts += ax.plot([cx-s,cx-s*.72],[cy,cy], color=col,lw=lw,zorder=5)
+        arts += ax.plot([cx+s*.72,cx+s],[cy,cy], color=col,lw=lw,zorder=5)
+        t = np.linspace(0, np.pi, 14)
+        for k in range(3):
+            off = -s*.55 + k*s*.37
+            arts += ax.plot(cx+off+s*.185*np.cos(t), cy+s*AR*.30*np.sin(t),
+                            color=col, lw=lw, zorder=5)
+        return arts
+
+    def draw_spring(cx, cy, s, col, lw):
+        sy = s * AR * 0.32
+        arts = []
+        arts += ax.plot([cx-s,cx-s*.85],[cy,cy], color=col,lw=lw,zorder=5)
+        arts += ax.plot([cx+s*.85,cx+s],[cy,cy], color=col,lw=lw,zorder=5)
+        xs = np.linspace(cx-s*.85, cx+s*.85, 7)
+        ys = np.array([cy + sy*((-1)**k) for k in range(7)])
+        arts += ax.plot(xs, ys, color=col, lw=lw, zorder=5)
+        return arts
+
+    def draw_damper(cx, cy, s, col, lw):
+        sy = s * AR * 0.46
+        arts = []
+        arts += ax.plot([cx-s,cx-s*.10],[cy,cy], color=col,lw=lw,zorder=5)
+        arts += ax.plot([cx-s*.10,cx-s*.10],[cy-sy,cy+sy], color=col,lw=lw*2.2,zorder=5)
+        arts += ax.plot([cx-s*.10,cx+s*.58],[cy+sy,cy+sy], color=col,lw=lw,zorder=5)
+        arts += ax.plot([cx-s*.10,cx+s*.58],[cy-sy,cy-sy], color=col,lw=lw,zorder=5)
+        arts += ax.plot([cx+s*.58,cx+s*.58],[cy-sy,cy+sy], color=col,lw=lw,zorder=5)
+        arts += ax.plot([cx+s*.58,cx+s],[cy,cy], color=col,lw=lw,zorder=5)
+        return arts
+
+    def draw_sensor(cx, cy, s, col, lw):
+        sx, sy = s*.56, s*.56*AR
+        arts = []
+        t = np.linspace(0, 2*np.pi, 36)
+        arts += ax.plot(cx+sx*np.cos(t), cy+sy*np.sin(t), color=col,lw=lw,zorder=5)
+        arts += ax.plot([cx-sx*.62,cx+sx*.62],[cy-sy*.62,cy+sy*.62], color=col,lw=lw*.70,zorder=5)
+        arts += ax.plot([cx+sx*.62,cx-sx*.62],[cy-sy*.62,cy+sy*.62], color=col,lw=lw*.70,zorder=5)
+        return arts
+
+    def draw_pump(cx, cy, s, col, lw):
+        sx, sy = s*.56, s*.56*AR
+        arts = []
+        t = np.linspace(0, 2*np.pi, 36)
+        arts += ax.plot(cx+sx*np.cos(t), cy+sy*np.sin(t), color=col,lw=lw,zorder=5)
+        t2 = np.linspace(.20, 5.50, 22); ri = .52
+        arts += ax.plot(cx+sx*ri*np.cos(t2), cy+sy*ri*np.sin(t2), color=col,lw=lw,zorder=5)
+        ae, da = t2[-1], 0.50
+        arts += ax.plot([cx+sx*ri*np.cos(ae-da), cx+sx*ri*np.cos(ae),
+                         cx+sx*ri*np.cos(ae-da)],
+                        [cy+sy*ri*np.sin(ae-da), cy+sy*ri*np.sin(ae),
+                         cy+sy*ri*np.sin(ae+.28)],
+                        color=col, lw=lw, zorder=5)
+        return arts
+
+    def draw_motor(cx, cy, s, col, lw):
+        sx, sy = s*.56, s*.56*AR
+        arts = []
+        t = np.linspace(0, 2*np.pi, 36)
+        arts += ax.plot(cx+sx*np.cos(t), cy+sy*np.sin(t), color=col,lw=lw,zorder=5)
+        arts += ax.plot([cx-s,cx-sx],[cy,cy], color=col,lw=lw,zorder=5)
+        arts += ax.plot([cx+sx,cx+s],[cy,cy], color=col,lw=lw,zorder=5)
+        tb = np.linspace(0, np.pi, 10); rb = sx*.24
+        for k in range(3):
+            xo = cx + (k-1)*sx*.46
+            arts += ax.plot(xo+rb*np.cos(tb), cy+sy*.16+rb*AR*np.sin(tb),
+                            color=col,lw=lw,zorder=5)
+        return arts
+
+    def draw_valve(cx, cy, s, col, lw):
+        # Globe valve: circle body + horizontal disc plate + pipe stubs + actuator stem
+        sx, sy = s*.50, s*.50*AR
+        arts = []
+        t = np.linspace(0, 2*np.pi, 36)
+        arts += ax.plot(cx+sx*np.cos(t), cy+sy*np.sin(t), color=col,lw=lw,zorder=5)
+        arts += ax.plot([cx-sx,cx+sx],[cy,cy], color=col,lw=lw*1.6,zorder=5)
+        arts += ax.plot([cx-s,cx-sx],[cy,cy], color=col,lw=lw,zorder=5)
+        arts += ax.plot([cx+sx,cx+s],[cy,cy], color=col,lw=lw,zorder=5)
+        arts += ax.plot([cx,cx],[cy+sy,cy+sy*1.55], color=col,lw=lw,zorder=5)
+        arts += ax.plot([cx-sx*.42,cx+sx*.42],[cy+sy*1.55,cy+sy*1.55], color=col,lw=lw,zorder=5)
+        return arts
+
+    sym_drawers = {
+        'controller':draw_controller,'opamp':draw_opamp,
+        'resistor':draw_resistor,'capacitor':draw_capacitor,'inductor':draw_inductor,
+        'spring':draw_spring,'damper':draw_damper,
+        'sensor':draw_sensor,'pump':draw_pump,'valve':draw_valve,'motor':draw_motor,
+    }
+    sym_scale = {
+        'controller':0.056,'opamp':0.040,
+        'resistor':0.038,'capacitor':0.038,'inductor':0.038,
+        'spring':0.036,'damper':0.036,
+        'sensor':0.038,'pump':0.040,'valve':0.036,'motor':0.040,
+    }
+
+    # ── Draw edges ────────────────────────────────────────────────────────────
+    # mark long-range chaos edges (last 13) as dashed
+    N_LOCAL = len(edges) - 13
+    edge_lines = []
+    for ei, (a, b) in enumerate(edges):
+        ic = ei >= N_LOCAL
+        l, = ax.plot([nodes[a,0],nodes[b,0]], [nodes[a,1],nodes[b,1]],
+                     color=DIM_RGB, lw=0.55 if ic else 0.85, alpha=0.28,
+                     linestyle=(0,(4,3)) if ic else '-', zorder=2)
+        edge_lines.append(l)
+
+    # ── Draw node symbols (dim — full schematic visible at all times) ─────────
+    DIM_RGBA   = (*DIM_RGB.tolist(), 0.42)
+    PROBE_RGBA = (*CU_RGB.tolist(),  0.22)   # probes glow faintly even at idle
+
+    node_artists = []
+    for i in range(len(nodes)):
+        cx, cy = nodes[i]
+        s    = sym_scale[sym_types[i]]
+        init = PROBE_RGBA if i in PROBES else DIM_RGBA
+        arts = sym_drawers[sym_types[i]](cx, cy, s, init, 1.0)
+        node_artists.append(arts)
+
+    add_vignette(ax)
+
+    def col_node(ni, rgba):
+        for a in node_artists[ni]:
+            a.set_color(rgba)
+
+    # ── Animation ─────────────────────────────────────────────────────────────
+    def update(frame):
+        # wave front in dist-from-nearest-probe units, travels over frames 21–44
+        search_wave = max(0.0, (frame - 21) * max_dist_any / 23.0)
+        det = frame >= 45
+
+        for ni in range(len(nodes)):
+            d_any   = dist_any[ni]
+            on_path = ni in true_path_set
+            reached = search_wave >= d_any
+            t_local = max(0.0, search_wave - d_any)
+            is_probe = ni in PROBES
+
+            if frame < 11:                              # idle
+                col_node(ni, PROBE_RGBA if is_probe else DIM_RGBA)
+            elif frame < 21:                            # fault blinks
+                if ni == FAULT:
+                    b_ = 0.55 + 0.45 * np.sin(frame * 1.6)
+                    col_node(ni, mcolors.to_rgba(CU, b_))
+                else:
+                    col_node(ni, PROBE_RGBA if is_probe else DIM_RGBA)
+            elif not det:                               # multi-source search
+                if ni == FAULT:
+                    col_node(ni, mcolors.to_rgba(CU, 1.0))
+                elif not reached:
+                    col_node(ni, PROBE_RGBA if is_probe else DIM_RGBA)
+                elif on_path:                           # true path stays lit
+                    col_node(ni, mcolors.to_rgba(CU, 1.0))
+                else:                                   # false lead fades
+                    fade = max(0.0, 1.0 - t_local / 1.5)
+                    col_node(ni, mcolors.to_rgba(CU2, max(0.04, fade * 0.65)))
+            else:                                       # fault isolated
+                if ni == FAULT:
+                    b_ = 0.55 + 0.45 * np.sin(frame * 1.6)
+                    col_node(ni, mcolors.to_rgba(CU, b_))
+                elif ni == winning:                     # winning probe pulses
+                    b_ = 0.55 + 0.45 * np.sin(frame * 2.2)
+                    col_node(ni, mcolors.to_rgba("#E8C45A", b_))
+                elif on_path:
+                    col_node(ni, mcolors.to_rgba(CU, 1.0))
+                else:
+                    col_node(ni, PROBE_RGBA if is_probe else DIM_RGBA)
+
+        for ei, ((a, b), l) in enumerate(zip(edges, edge_lines)):
+            ic        = ei >= N_LOCAL
+            on_true   = (a, b) in true_path_edges
+            d_edge    = min(dist_any[a], dist_any[b])
+            reached_e = search_wave >= d_edge
+            t_local_e = max(0.0, search_wave - d_edge)
+
+            if frame < 21:
+                l.set_color(DIM_RGB); l.set_alpha(0.25)
+                l.set_linewidth(0.55 if ic else 0.85)
+            elif not det:
+                if not reached_e:
+                    l.set_color(DIM_RGB); l.set_alpha(0.25)
+                    l.set_linewidth(0.55 if ic else 0.85)
+                elif on_true:
+                    l.set_color(CU_RGB); l.set_alpha(0.82)
+                    l.set_linewidth(0.90 if ic else 1.60)
+                else:
+                    fade = max(0.0, 1.0 - t_local_e / 1.5)
+                    l.set_color(CU_RGB); l.set_alpha(fade * 0.42)
+                    l.set_linewidth(0.45 if ic else 0.75)
+            else:
+                if on_true:
+                    l.set_color(CU_RGB); l.set_alpha(0.88)
+                    l.set_linewidth(1.00 if ic else 2.00)
+                else:
+                    l.set_color(DIM_RGB); l.set_alpha(0.15)
+                    l.set_linewidth(0.45 if ic else 0.65)
+
+    save_gif(fig, update, os.path.join(OUT, 'gif-diagnostics-complex.gif'))
+
+
 if __name__ == '__main__':
     print('Generating GIFs …')
     make_pde_gif()
@@ -795,4 +1152,5 @@ if __name__ == '__main__':
     make_learning_gif()
     make_nonlinear_gif()
     make_diagnostics_gif()
+    make_diagnostics_complex_gif()
     print('Done.')
