@@ -1048,7 +1048,7 @@ def make_diagnostics_complex_gif():
     for ei, (a, b) in enumerate(edges):
         ic = ei >= N_LOCAL
         l, = ax.plot([nodes[a,0],nodes[b,0]], [nodes[a,1],nodes[b,1]],
-                     color=DIM_RGB, lw=0.55 if ic else 0.85, alpha=0.28,
+                     color=DIM_RGB, lw=0.9 if ic else 1.4, alpha=0.28,
                      linestyle=(0,(4,3)) if ic else '-', zorder=2)
         edge_lines.append(l)
 
@@ -1061,7 +1061,7 @@ def make_diagnostics_complex_gif():
         cx, cy = nodes[i]
         s    = sym_scale[sym_types[i]]
         init = PROBE_RGBA if i in PROBES else DIM_RGBA
-        arts = sym_drawers[sym_types[i]](cx, cy, s, init, 1.0)
+        arts = sym_drawers[sym_types[i]](cx, cy, s, init, 1.8)
         node_artists.append(arts)
 
     add_vignette(ax)
@@ -1122,25 +1122,25 @@ def make_diagnostics_complex_gif():
 
             if frame < 21:
                 l.set_color(DIM_RGB); l.set_alpha(0.25)
-                l.set_linewidth(0.55 if ic else 0.85)
+                l.set_linewidth(0.9 if ic else 1.4)
             elif not det:
                 if not reached_e:
                     l.set_color(DIM_RGB); l.set_alpha(0.25)
-                    l.set_linewidth(0.55 if ic else 0.85)
+                    l.set_linewidth(0.9 if ic else 1.4)
                 elif on_true:
                     l.set_color(CU_RGB); l.set_alpha(0.82)
-                    l.set_linewidth(0.90 if ic else 1.60)
+                    l.set_linewidth(1.4 if ic else 2.4)
                 else:
                     fade = max(0.0, 1.0 - t_local_e / 1.5)
                     l.set_color(CU_RGB); l.set_alpha(fade * 0.42)
-                    l.set_linewidth(0.45 if ic else 0.75)
+                    l.set_linewidth(0.7 if ic else 1.2)
             else:
                 if on_true:
                     l.set_color(CU_RGB); l.set_alpha(0.88)
-                    l.set_linewidth(1.00 if ic else 2.00)
+                    l.set_linewidth(1.5 if ic else 2.8)
                 else:
                     l.set_color(DIM_RGB); l.set_alpha(0.15)
-                    l.set_linewidth(0.45 if ic else 0.65)
+                    l.set_linewidth(0.7 if ic else 1.0)
 
     save_gif(fig, update, os.path.join(OUT, 'gif-diagnostics-complex.gif'))
 
