@@ -868,7 +868,7 @@
     }
     .ppc-body {
       position: relative;
-      height: 74px;
+      height: 90px;
       overflow: hidden;
       border-top: 1px solid rgba(0,0,0,0.06);
     }
@@ -876,26 +876,23 @@
       content: '';
       position: absolute;
       bottom: 0; left: 0; right: 0;
-      height: 36px;
+      height: 32px;
       background: linear-gradient(transparent, #fff);
       pointer-events: none;
       z-index: 1;
     }
     .ppc-scroll {
       display: block;
-      padding: 0.5rem 0.85rem 0;
-      animation: ppc-scroll 5s linear infinite;
+      padding: 0.55rem 0.85rem 0;
+      animation: ppc-scroll 12s linear infinite;
     }
-    .ppc-line {
-      height: 5px;
-      border-radius: 2px;
-      background: rgba(0,0,0,0.09);
-      margin-bottom: 5px;
+    .ppc-abstract {
+      font-family: var(--sans);
+      font-size: 0.63rem;
+      line-height: 1.65;
+      color: #4A4C56;
+      padding-bottom: 1rem;
     }
-    .ppc-line.wf { width: 100%; }
-    .ppc-line.wl { width: 91%; }
-    .ppc-line.wm { width: 80%; }
-    .ppc-line.ws { width: 58%; }
     @keyframes ppc-scroll {
       0%   { transform: translateY(0); }
       100% { transform: translateY(-50%); }
@@ -1694,14 +1691,8 @@
               <div class="ppc-title">Dual Representations and H∞-Optimal Control of Partial Differential Equations</div>
               <div class="ppc-authors">Shivakumar, Das, Peet</div>
               <div class="ppc-body"><div class="ppc-scroll">
-                <div class="ppc-line wf"></div><div class="ppc-line wl"></div><div class="ppc-line wf"></div>
-                <div class="ppc-line wm"></div><div class="ppc-line wf"></div><div class="ppc-line wl"></div>
-                <div class="ppc-line ws"></div><div class="ppc-line wf"></div><div class="ppc-line wm"></div>
-                <div class="ppc-line wf"></div><div class="ppc-line wl"></div><div class="ppc-line wf"></div>
-                <div class="ppc-line wf"></div><div class="ppc-line wl"></div><div class="ppc-line wf"></div>
-                <div class="ppc-line wm"></div><div class="ppc-line wf"></div><div class="ppc-line wl"></div>
-                <div class="ppc-line ws"></div><div class="ppc-line wf"></div><div class="ppc-line wm"></div>
-                <div class="ppc-line wf"></div><div class="ppc-line wl"></div><div class="ppc-line wf"></div>
+                <div class="ppc-abstract">We consider H∞-optimal state-feedback control of linear Partial Differential Equations (PDEs) admitting a Partial Integral Equation (PIE) representation. We show that any PIE system admits a dual PIE with identical stability and I/O properties — resolving the bilinearity in controller synthesis. This allows reformulation as convex optimisation over positive Partial Integral operators, yielding feedback gains for the original PDE system. Results are verified on canonical PDE control benchmarks with non-conservative H∞ norm bounds.</div>
+                <div class="ppc-abstract">We consider H∞-optimal state-feedback control of linear Partial Differential Equations (PDEs) admitting a Partial Integral Equation (PIE) representation. We show that any PIE system admits a dual PIE with identical stability and I/O properties — resolving the bilinearity in controller synthesis. This allows reformulation as convex optimisation over positive Partial Integral operators, yielding feedback gains for the original PDE system. Results are verified on canonical PDE control benchmarks with non-conservative H∞ norm bounds.</div>
               </div></div>
             </div>
           </div>
@@ -1724,14 +1715,8 @@
               <div class="ppc-title">A Digital Twin of Evaporative Thermo-Fluidic Process in Fixation Unit of DoD Inkjet Printers</div>
               <div class="ppc-authors">Toolhally, Roelofs, Weiland, Das</div>
               <div class="ppc-body"><div class="ppc-scroll">
-                <div class="ppc-line wf"></div><div class="ppc-line wm"></div><div class="ppc-line wf"></div>
-                <div class="ppc-line wl"></div><div class="ppc-line wf"></div><div class="ppc-line ws"></div>
-                <div class="ppc-line wf"></div><div class="ppc-line wl"></div><div class="ppc-line wm"></div>
-                <div class="ppc-line wf"></div><div class="ppc-line wf"></div><div class="ppc-line wl"></div>
-                <div class="ppc-line wf"></div><div class="ppc-line wm"></div><div class="ppc-line wf"></div>
-                <div class="ppc-line wl"></div><div class="ppc-line wf"></div><div class="ppc-line ws"></div>
-                <div class="ppc-line wf"></div><div class="ppc-line wl"></div><div class="ppc-line wm"></div>
-                <div class="ppc-line wf"></div><div class="ppc-line wf"></div><div class="ppc-line wl"></div>
+                <div class="ppc-abstract">In inkjet printing, optimal paper moisture is crucial for print quality, maintained through hot-air impingement in the fixation unit. This paper presents a modular digital twin of the fixation unit, modelling the thermo-fluidic drying process and monitoring its spatio-temporal performance. The digital twin is formulated as an infinite-dimensional H∞-optimal state estimator that infers fixation states from limited sensor data, remaining robust to disturbances. Validated with operational data from a commercial printer.</div>
+                <div class="ppc-abstract">In inkjet printing, optimal paper moisture is crucial for print quality, maintained through hot-air impingement in the fixation unit. This paper presents a modular digital twin of the fixation unit, modelling the thermo-fluidic drying process and monitoring its spatio-temporal performance. The digital twin is formulated as an infinite-dimensional H∞-optimal state estimator that infers fixation states from limited sensor data, remaining robust to disturbances. Validated with operational data from a commercial printer.</div>
               </div></div>
             </div>
           </div>
@@ -1756,14 +1741,8 @@
               <div class="ppc-title">Bayesian Optimization Based Grid Point Allocation for LPV and Robust Control</div>
               <div class="ppc-authors">Olucha, Sadeghzadeh, Das, Tóth</div>
               <div class="ppc-body"><div class="ppc-scroll">
-                <div class="ppc-line wl"></div><div class="ppc-line wf"></div><div class="ppc-line wm"></div>
-                <div class="ppc-line wf"></div><div class="ppc-line wf"></div><div class="ppc-line wl"></div>
-                <div class="ppc-line ws"></div><div class="ppc-line wf"></div><div class="ppc-line wl"></div>
-                <div class="ppc-line wm"></div><div class="ppc-line wf"></div><div class="ppc-line wf"></div>
-                <div class="ppc-line wl"></div><div class="ppc-line wf"></div><div class="ppc-line wm"></div>
-                <div class="ppc-line wf"></div><div class="ppc-line wf"></div><div class="ppc-line wl"></div>
-                <div class="ppc-line ws"></div><div class="ppc-line wf"></div><div class="ppc-line wl"></div>
-                <div class="ppc-line wm"></div><div class="ppc-line wf"></div><div class="ppc-line wf"></div>
+                <div class="ppc-abstract">This paper investigates systematic optimal grid point selection for grid-based Linear Parameter-Varying (LPV) and robust controller synthesis. Bayesian optimisation discovers the most informative scheduling points governing closed-loop performance of the LPV or robust controller across the complete system. When local model evaluations are costly, the method minimises the number of evaluations and adjusts to the available budget. Demonstrated on an unbalanced disk, a satellite with flexible solar arrays, and a robotic arm.</div>
+                <div class="ppc-abstract">This paper investigates systematic optimal grid point selection for grid-based Linear Parameter-Varying (LPV) and robust controller synthesis. Bayesian optimisation discovers the most informative scheduling points governing closed-loop performance of the LPV or robust controller across the complete system. When local model evaluations are costly, the method minimises the number of evaluations and adjusts to the available budget. Demonstrated on an unbalanced disk, a satellite with flexible solar arrays, and a robotic arm.</div>
               </div></div>
             </div>
           </div>
