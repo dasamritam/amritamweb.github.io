@@ -83,7 +83,7 @@ def render_srg_inset(n_visible: int) -> Image.Image:
     fig_h = INSET_H / 100.0
     fig, ax = plt.subplots(figsize=(fig_w, fig_h), dpi=100)
 
-    BG = "#0b1420"
+    BG = "#0a0b10"
     fig.patch.set_facecolor(BG);  ax.set_facecolor(BG)
     fig.subplots_adjust(left=0.22, right=0.97, top=0.88, bottom=0.22)
 
